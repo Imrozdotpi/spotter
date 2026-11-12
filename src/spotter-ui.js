@@ -900,6 +900,12 @@
       // Ask the browser to keep this site's storage. No network involved.
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
     } catch (e) {}
+    try {
+      // Offline support. Service workers only exist on http(s); from file:// the app simply runs without one.
+      if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      }
+    } catch (e) {}
     selectDate(activeDate); // redraw the tracker now that Spotter is ready
     refresh();
   }

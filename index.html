@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>PPL Beast Mobile</title>
+  <!-- SPOTTER HOOK: rebrand, installable app (manifest + icons). All paths are relative. -->
+  <meta name="apple-mobile-web-app-title" content="Spotter" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#131b2e" />
+  <meta name="description" content="Spotter: your logbook is the wearable. On-device training insights from the workout log you already keep." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png" />
+  <title>Spotter</title>
   <style>
     :root {
       --bg-main: #090d16;
@@ -658,6 +667,8 @@
     <!-- SPOTTER HOOK: demo-data banner and storage warning (hidden unless needed) -->
     <div id="spDemoBanner" class="sp-banner sp-hidden">DEMO DATA · not your real logbook</div>
     <div id="spStoreWarn" class="sp-warn sp-hidden"></div>
+    <!-- SPOTTER HOOK: app name -->
+    <div class="sp-brand"><strong>SPOTTER</strong><span>Your logbook is the wearable.</span></div>
     <div class="header-top">
       <button class="date-trigger-btn" onclick="toggleCalendarDrawer()">
         <span>📅</span>

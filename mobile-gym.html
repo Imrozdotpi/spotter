@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PPL Beast Mobile</title>
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --bg-card: #131b2e;
+      --bg-input: #0b101b;
+      --border: #24324d;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.16);
+      --push: #ef4444;
+      --pull: #3b82f6;
+      --legs: #f59e0b;
+      --rest: #64748b;
+      --cal: #f97316;
+      --water: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding-bottom: 90px;
+      overflow-x: hidden;
+    }
+
+    /* Sticky Mobile App Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 150;
+      background: rgba(19, 27, 46, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-trigger-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-pills {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pill-timer {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-rest {
+      color: #38bdf8;
+    }
+
+    /* Collapsible Calendar Drawer */
+    .calendar-drawer {
+      margin-top: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .calendar-drawer.open {
+      display: block;
+    }
+
+    .cal-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .cal-nav button {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .cal-weekdays, .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .cal-weekdays div {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding-bottom: 4px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .cal-cell.empty {
+      background: transparent;
+    }
+
+    .cal-cell.selected {
+      border: 2px solid var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .cal-cell.today {
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    .split-dot {
+      width: 12px;
+      height: 3.5px;
+      border-radius: 3px;
+    }
+
+    .food-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--cal);
+    }
+
+    .dot-push1, .dot-push2 { background: var(--push); }
+    .dot-pull1, .dot-pull2 { background: var(--pull); }
+    .dot-legs1, .dot-legs2 { background: var(--legs); }
+    .dot-rest { background: var(--rest); }
+
+    /* Main Mobile Container */
+    .mobile-wrap {
+      padding: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* Horizontal Scroll Split Pills */
+    .split-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .split-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .split-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .split-chip.active-push1, .split-chip.active-push2 {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--push);
+      color: #fca5a5;
+    }
+
+    .split-chip.active-pull1, .split-chip.active-pull2 {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--pull);
+      color: #93c5fd;
+    }
+
+    .split-chip.active-legs1, .split-chip.active-legs2 {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--legs);
+      color: #fcd34d;
+    }
+
+    .split-chip.active-rest {
+      background: rgba(100, 116, 139, 0.25);
+      border-color: var(--rest);
+      color: #cbd5e1;
+    }
+
+    /* Quick Stats Strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .stat-mini {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .stat-mini-lbl {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-mini-val {
+      font-size: 0.95rem;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .prog-bg {
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .prog-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      transition: width 0.25s;
+    }
+
+    /* Exercise Cards for Mobile */
+    .muscle-tag {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+      margin: 14px 0 8px 4px;
+    }
+
+    .ex-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ex-card.done-card {
+      border-color: rgba(16, 185, 129, 0.6);
+    }
+
+    .ex-name-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px dashed var(--border);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 800;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .ex-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .ghost-bar {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7dd3fc;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 0.74rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    /* Mobile Set Grid Row (Zero Horizontal Overflow) */
+    .set-header-grid, .set-row-grid {
+      display: grid;
+      grid-template-columns: 32px 1fr 1fr 54px 38px 24px;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .set-header-grid {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .set-row-grid.done-row {
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 8px;
+      padding: 3px 0;
+    }
+
+    .type-btn {
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-weight: 900;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .type-W { color: #facc15; border-color: #854d0e; }
+    .type-D { color: #c084fc; border-color: #6b21a8; }
+    .type-F { color: #f87171; border-color: #991b1b; }
+
+    /* 16px font prevents iOS/Android auto-zoom on tap */
+    .mob-input {
+      width: 100%;
+      height: 36px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .mob-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .mob-check {
+      width: 24px;
+      height: 24px;
+      accent-color: var(--accent);
+      margin: 0 auto;
+    }
+
+    .del-set-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .ex-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .btn-dark {
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-green {
+      background: var(--accent);
+      color: #042f2e;
+    }
+
+    /* Nutrition & Macro Cards */
+    .macro-grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .macro-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .food-chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .food-chip-btn {
+      flex: 0 0 auto;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 0.78rem;
+    }
+
+    .food-chip-btn small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      margin-top: 2px;
+    }
+
+    /* Bottom Fixed App Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: rgba(19, 27, 46, 0.98);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      z-index: 200;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+    }
+
+    /* Slide-Up Mobile Bottom Sheet Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 300;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-radius: 18px 18px 0 0;
+      width: 100%;
+      max-width: 600px;
+      padding: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STICKY BAR: DATE & LIVE TIMERS -->
+  <header class="app-header">
+    <div class="header-top">
+      <button class="date-trigger-btn" onclick="toggleCalendarDrawer()">
+        <span>📅</span>
+        <span id="topDateText">Today</span>
+        <span style="font-size:0.7rem; color:var(--accent);">▼</span>
+      </button>
+
+      <div class="timer-pills">
+        <div class="pill-timer" onclick="toggleWorkoutTimer()">
+          <span>⏱</span>
+          <span id="topStopwatch">00:00</span>
+        </div>
+        <div class="pill-timer pill-rest" onclick="startRestTimer(90)">
+          <span>🔔</span>
+          <span id="topRestTimer">01:30</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collapsible Interactive Calendar -->
+    <div class="calendar-drawer" id="calDrawer">
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">◀</button>
+        <div style="font-weight:800; font-size:0.95rem;" id="calMonthTitle">Month</div>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="cal-weekdays">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
+        <span style="font-size:0.72rem; color:var(--text-muted);">Tap any date to load or log</span>
+        <button class="btn btn-dark" style="padding:5px 10px; font-size:0.72rem;" onclick="jumpToToday()">Jump to Today</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-wrap">
+
+    <!-- ==========================================
+         VIEW 1: WORKOUT SPLIT TRACKER
+         ========================================== -->
+    <section id="view-workout" class="view-section active">
+      <!-- Swipeable Split Selector -->
+      <div class="split-scroll" id="splitSelectorRow">
+        <button class="split-chip" onclick="changeDaySplit('push1')">Push 1</button>
+        <button class="split-chip" onclick="changeDaySplit('pull1')">Pull 1</button>
+        <button class="split-chip" onclick="changeDaySplit('legs1')">Legs 1</button>
+        <button class="split-chip" onclick="changeDaySplit('push2')">Push 2</button>
+        <button class="split-chip" onclick="changeDaySplit('pull2')">Pull 2</button>
+        <button class="split-chip" onclick="changeDaySplit('legs2')">Legs 2</button>
+        <button class="split-chip" onclick="changeDaySplit('rest')">Rest Day</button>
+      </div>
+
+      <!-- Daily Performance Summary -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:800; font-size:0.88rem;" id="splitTitleBanner">Push 1</span>
+          <span style="font-weight:900; font-size:0.88rem; color:var(--accent);" id="scoreBanner">0% Done</span>
+        </div>
+
+        <div class="stats-strip">
+          <div class="stat-mini">
+            <div class="stat-mini-lbl">Sets</div>
+            <div class="stat-mini-val" id="statSets">0/0</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-lbl">Volume</div>
+            <div class="stat-mini-val" id="statVol">0kg</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-lbl">Minutes</div>
+            <div class="stat-mini-val" id="statMins">0m</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-lbl">Burned</div>
+            <div class="stat-mini-val" id="statBurn" style="color:var(--cal);">0</div>
+          </div>
+        </div>
+
+        <div class="prog-bg"><div class="prog-fill" id="workoutProgFill"></div></div>
+      </div>
+
+      <!-- Exercises List -->
+      <div id="exercisesList"></div>
+
+      <!-- Bottom Day Controls -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:800; font-size:0.88rem;">Session Details</span>
+          <button class="btn btn-green" onclick="openAddExerciseModal()">+ Add Exercise</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Duration (Minutes)</label>
+            <input type="number" id="minsInput" class="mob-input" placeholder="0" oninput="saveMins(this.value)" />
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Bodyweight (kg)</label>
+            <input type="number" step="0.1" id="bwInput" class="mob-input" placeholder="kg" oninput="saveBw(this.value)" />
+          </div>
+        </div>
+
+        <textarea id="notesInput" class="mob-input" style="height:64px; padding:8px; text-align:left; font-size:14px;" placeholder="Notes, PRs, tricep variations, or leg exercises..." oninput="saveNotes(this.value)"></textarea>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 2: CALORIES, MACROS & WATER
+         ========================================== -->
+    <section id="view-nutrition" class="view-section">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:800;">🔥 Daily Calories & Macros</span>
+          <button class="btn btn-dark" onclick="openMacroModal()">⚙️ Targets</button>
+        </div>
+
+        <div class="macro-grid-2x2">
+          <div class="macro-box">
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">CALORIES</div>
+            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="calText">0 / 2500</div>
+            <div class="prog-bg"><div class="prog-fill" id="calBar" style="background:var(--cal);"></div></div>
+          </div>
+          <div class="macro-box">
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">PROTEIN</div>
+            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="proText">0 / 160g</div>
+            <div class="prog-bg"><div class="prog-fill" id="proBar" style="background:var(--accent);"></div></div>
+          </div>
+          <div class="macro-box">
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">CARBS</div>
+            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="carbText">0 / 280g</div>
+            <div class="prog-bg"><div class="prog-fill" id="carbBar" style="background:var(--pull);"></div></div>
+          </div>
+          <div class="macro-box">
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">FATS</div>
+            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="fatText">0 / 70g</div>
+            <div class="prog-bg"><div class="prog-fill" id="fatBar" style="background:var(--legs);"></div></div>
+          </div>
+        </div>
+
+        <div style="font-size:0.78rem; font-weight:800; color:var(--accent); margin-bottom:6px;">⚡ 1-TAP GYM FOODS (SWIPE →):</div>
+        <div class="food-chips-scroll" id="quickFoodsRow"></div>
+
+        <div style="font-size:0.78rem; font-weight:800; margin:10px 0 6px;">➕ ADD CUSTOM FOOD:</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:8px;">
+          <input type="text" id="fName" class="mob-input" style="grid-column: span 2; text-align:left; padding:0 10px;" placeholder="Food name (e.g. Chicken Rice)" />
+          <input type="number" id="fCal" class="mob-input" placeholder="Calories" />
+          <input type="number" id="fPro" class="mob-input" placeholder="Protein (g)" />
+          <input type="number" id="fCarb" class="mob-input" placeholder="Carbs (g)" />
+          <input type="number" id="fFat" class="mob-input" placeholder="Fat (g)" />
+        </div>
+        <button class="btn btn-green" style="width:100%; padding:10px;" onclick="addCustomFood()">+ Log Meal</button>
+      </div>
+
+      <!-- Logged Meals List -->
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:8px;">🍽 Today's Logged Foods</div>
+        <div id="loggedFoodsList"></div>
+      </div>
+
+      <!-- Water & Supplements Card -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="font-weight:800;">💧 Hydration & Stack</span>
+          <span id="waterText" style="color:#38bdf8; font-weight:800;">0 / 3500 ml</span>
+        </div>
+        <div class="prog-bg" style="margin-bottom:10px;"><div class="prog-fill" id="waterBar" style="background:#06b6d4;"></div></div>
+        <div style="display:flex; gap:6px; margin-bottom:12px;">
+          <button class="btn btn-dark" style="flex:1;" onclick="addWater(250)">+250ml</button>
+          <button class="btn btn-dark" style="flex:1;" onclick="addWater(500)">+500ml</button>
+          <button class="btn btn-dark" onclick="addWater(-250)">-250ml</button>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;" id="suppRow"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 3: TIMERS, PLATE LOADER & 1RM TOOLS
+         ========================================== -->
+    <section id="view-tools" class="view-section">
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:8px;">⏱ Rest & Session Timer Controls</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+          <button class="btn btn-green" onclick="toggleWorkoutTimer()">Start/Pause Session</button>
+          <button class="btn btn-dark" onclick="saveTimerToMins()">Log Session Mins</button>
+          <button class="btn btn-dark" onclick="resetWorkoutTimer()">Reset</button>
+        </div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">Quick Rest Countdown:</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;">
+          <button class="btn btn-dark" onclick="startRestTimer(60)">60s</button>
+          <button class="btn btn-dark" onclick="startRestTimer(90)">90s</button>
+          <button class="btn btn-dark" onclick="startRestTimer(120)">2m</button>
+          <button class="btn btn-dark" onclick="startRestTimer(180)">3m</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:8px;">🏋️ Barbell Plate Calculator (20kg Bar)</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <span>Target Total Weight (kg):</span>
+          <input type="number" id="plateInput" value="100" step="2.5" class="mob-input" style="max-width:100px;" oninput="calcPlates()" />
+        </div>
+        <div id="plateResultText" style="padding:12px; background:var(--bg-input); border-radius:10px; font-weight:800; color:var(--accent); text-align:center;"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:8px;">📈 1-Rep Max (e1RM) Calculator</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Weight (kg)</label>
+            <input type="number" id="rmW" value="80" class="mob-input" oninput="calc1RM()" />
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Reps</label>
+            <input type="number" id="rmR" value="8" class="mob-input" oninput="calc1RM()" />
+          </div>
+        </div>
+        <div id="rmOut" style="font-size:1.3rem; font-weight:900; color:var(--accent); text-align:center;">Est. 1RM: 101.3 kg</div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 4: WEEKLY VOLUME, PRs & BACKUP
+         ========================================== -->
+    <section id="view-stats" class="view-section">
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:10px;">💪 Last 7 Days Working Sets</div>
+        <div id="weeklyVolList"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:10px;">🏆 All-Time Personal Records (Best e1RM)</div>
+        <div id="prList"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:8px;">💾 Backup & Restore Data</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-green" style="flex:1;" onclick="exportBackup()">Download Backup</button>
+          <button class="btn btn-dark" style="flex:1;" onclick="document.getElementById('restoreInput').click()">Restore File</button>
+          <input type="file" id="restoreInput" style="display:none" accept=".json" onchange="importBackup(event)" />
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SLIDE-UP MODAL: ADD CUSTOM EXERCISE -->
+  <div class="modal-backdrop" id="addExModal">
+    <div class="modal-sheet">
+      <div style="font-weight:800; font-size:1rem; margin-bottom:12px;">+ Add Movement to Today</div>
+      <div class="form-group">
+        <label>Muscle Group</label>
+        <select id="newExMuscle" class="mob-input" style="padding:0 10px;">
+          <option value="Chest">Chest</option>
+          <option value="Shoulders">Shoulders</option>
+          <option value="Triceps">Triceps</option>
+          <option value="Back">Back</option>
+          <option value="Biceps">Biceps</option>
+          <option value="Legs">Legs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Exercise Name</label>
+        <input type="text" id="newExName" class="mob-input" placeholder="e.g. Barbell Squat" />
+      </div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-dark" style="flex:1; padding:12px;" onclick="closeModals()">Cancel</button>
+        <button class="btn btn-green" style="flex:1; padding:12px;" onclick="confirmAddExercise()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE-UP MODAL: EDIT MACRO TARGETS -->
+  <div class="modal-backdrop" id="macroModal">
+    <div class="modal-sheet">
+      <div style="font-weight:800; font-size:1rem; margin-bottom:12px;">⚙️ Daily Calorie & Macro Targets</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div class="form-group"><label>Calories (kcal)</label><input type="number" id="goalCal" class="mob-input" /></div>
+        <div class="form-group"><label>Protein (g)</label><input type="number" id="goalPro" class="mob-input" /></div>
+        <div class="form-group"><label>Carbs (g)</label><input type="number" id="goalCarb" class="mob-input" /></div>
+        <div class="form-group"><label>Fats (g)</label><input type="number" id="goalFat" class="mob-input" /></div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-dark" style="flex:1; padding:12px;" onclick="closeModals()">Cancel</button>
+        <button class="btn btn-green" style="flex:1; padding:12px;" onclick="saveMacroGoals()">Save Goals</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIXED BOTTOM APP BAR -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchView('workout', this)">
+      <span class="nav-icon">🏋️‍♂️</span>
+      <span>Workout</span>
+    </button>
+    <button class="nav-item" onclick="switchView('nutrition', this)">
+      <span class="nav-icon">🔥</span>
+      <span>Calories</span>
+    </button>
+    <button class="nav-item" onclick="switchView('tools', this)">
+      <span class="nav-icon">🧮</span>
+      <span>Tools</span>
+    </button>
+    <button class="nav-item" onclick="switchView('stats', this)">
+      <span class="nav-icon">📊</span>
+      <span>PRs & Vol</span>
+    </button>
+  </nav>
+
+  <script>
+    // ==========================================
+    // 1. CRASH-PROOF MOBILE STORAGE ENGINE
+    // ==========================================
+    const SafeStore = {
+      mem: {},
+      get(key) {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (e) {
+          return this.mem[key] || null;
+        }
+      },
+      set(key, val) {
+        try {
+          window.localStorage.setItem(key, val);
+        } catch (e) {
+          this.mem[key] = val;
+        }
+      }
+    };
+
+    // ==========================================
+    // 2. YOUR CUSTOM PPL SPLIT TEMPLATES
+    // ==========================================
+    const SPLITS = {
+      push1: {
+        title: "Push 1 (Chest, Shoulders, Triceps)",
+        list: [
+          { m: "Chest", n: "Flat Bench Press", r: "6-10", p: "8.5", s: 3 },
+          { m: "Chest", n: "Incline Dumbbell Press", r: "8-12", p: "8.5", s: 3 },
+          { m: "Chest", n: "Cable Chest Flyes", r: "12-15", p: "9", s: 3 },
+          { m: "Chest", n: "Pec Deck Flyes", r: "12-15", p: "9", s: 3 },
+          { m: "Shoulders", n: "DB Shoulder Press + Lateral Raises (Superset)", r: "10/15", p: "9", s: 3 },
+          { m: "Shoulders", n: "Rear Delt Fly", r: "12-15", p: "8.5", s: 3 },
+          { m: "Shoulders", n: "Shoulder Compound Press", r: "8-10", p: "8.5", s: 3 },
+          { m: "Triceps", n: "Tricep Rope Pushdown", r: "10-12", p: "9", s: 3 },
+          { m: "Triceps", n: "Dumbbell Tricep Pullover", r: "10-12", p: "8.5", s: 3 },
+          { m: "Triceps", n: "Cable Tricep Pullover", r: "12-15", p: "9", s: 3 }
+        ]
+      },
+      pull1: {
+        title: "Pull 1 (Deadlift Back & Biceps)",
+        list: [
+          { m: "Back", n: "Pull-Ups", r: "8-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Deadlift", r: "5-8", p: "8.5", s: 3 },
+          { m: "Back", n: "Lat Pulldowns", r: "10-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Seated Cable Rows", r: "10-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Seated Cable T-Bar (with DBs)", r: "10-12", p: "9", s: 3 },
+          { m: "Biceps", n: "Barbell Bicep Curl", r: "8-12", p: "8.5", s: 3 },
+          { m: "Biceps", n: "Incline DB Bicep Curl", r: "10-12", p: "9", s: 3 }
+        ]
+      },
+      legs1: {
+        title: "Legs 1 (Tap + Add Exercise or Check-In)",
+        list: [
+          { m: "Legs", n: "Legs Session (Tap name to edit)", r: "8-12", p: "8.5", s: 4 }
+        ]
+      },
+      push2: {
+        title: "Push 2 (Chest, Shoulders & Swapped Triceps)",
+        list: [
+          { m: "Chest", n: "Flat Bench Press", r: "6-10", p: "8.5", s: 3 },
+          { m: "Chest", n: "Incline Dumbbell Press", r: "8-12", p: "8.5", s: 3 },
+          { m: "Chest", n: "Cable Chest Flyes", r: "12-15", p: "9", s: 3 },
+          { m: "Chest", n: "Pec Deck Flyes", r: "12-15", p: "9", s: 3 },
+          { m: "Shoulders", n: "DB Shoulder Press + Lateral Raises (Superset)", r: "10/15", p: "9", s: 3 },
+          { m: "Shoulders", n: "Rear Delt Fly", r: "12-15", p: "8.5", s: 3 },
+          { m: "Shoulders", n: "Shoulder Compound Press", r: "8-10", p: "8.5", s: 3 },
+          { m: "Triceps", n: "Tricep Rope Pushdown", r: "10-12", p: "9", s: 3 },
+          { m: "Triceps", n: "Overhead Cable Extension (Var 1)", r: "10-12", p: "8.5", s: 3 },
+          { m: "Triceps", n: "EZ-Bar Skullcrushers (Var 2)", r: "10-12", p: "9", s: 3 }
+        ]
+      },
+      pull2: {
+        title: "Pull 2 (Bent-Over Rows & Hammer Curls)",
+        list: [
+          { m: "Back", n: "Pull-Ups", r: "8-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Bent-Over Barbell Rows", r: "8-10", p: "8.5", s: 3 },
+          { m: "Back", n: "Lat Pulldowns", r: "10-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Seated Cable Rows", r: "10-12", p: "8.5", s: 3 },
+          { m: "Back", n: "Seated Cable T-Bar (with DBs)", r: "10-12", p: "9", s: 3 },
+          { m: "Biceps", n: "Barbell Bicep Curl", r: "8-12", p: "8.5", s: 3 },
+          { m: "Biceps", n: "Incline DB Bicep Curl", r: "10-12", p: "9", s: 3 },
+          { m: "Biceps", n: "Dumbbell Hammer Curls", r: "10-12", p: "9", s: 3 }
+        ]
+      },
+      legs2: {
+        title: "Legs 2 (Tap + Add Exercise or Check-In)",
+        list: [
+          { m: "Legs", n: "Legs Session (Tap name to edit)", r: "8-12", p: "8.5", s: 4 }
+        ]
+      },
+      rest: {
+        title: "Active Recovery / Rest Day",
+        list: []
+      }
+    };
+
+    const STAPLES = [
+      { name: "Whey Scoop", cal: 120, pro: 24, carb: 3, fat: 1.5 },
+      { name: "2 Boiled Eggs", cal: 140, pro: 12, carb: 1, fat: 10 },
+      { name: "4 Egg Whites", cal: 68, pro: 14, carb: 1, fat: 0 },
+      { name: "Chicken (150g)", cal: 248, pro: 46, carb: 0, fat: 5 },
+      { name: "Paneer (100g)", cal: 265, pro: 18, carb: 3, fat: 20 },
+      { name: "Soya Chunks (50g)", cal: 172, pro: 26, carb: 16, fat: 1 },
+      { name: "Oats + Milk", cal: 350, pro: 14, carb: 52, fat: 8 },
+      { name: "2 Roti + Dal", cal: 360, pro: 14, carb: 64, fat: 5 },
+      { name: "White Rice (200g)", cal: 260, pro: 5, carb: 56, fat: 0.5 },
+      { name: "Banana + PB", cal: 295, pro: 9, carb: 34, fat: 16 }
+    ];
+
+    const SUPPS = ["Creatine 5g", "Whey", "Pre-Workout", "Multivitamin", "Omega-3"];
+
+    // ==========================================
+    // 3. STATE INITIALIZATION
+    // ==========================================
+    const KEY_LOGS = "lakshay_ppl_tracker_v1";
+    const KEY_GOALS = "lakshay_macro_goals_v1";
+
+    let logs = {};
+    let goals = { cal: 2500, pro: 160, carb: 280, fat: 70 };
+
+    try {
+      const rawLogs = SafeStore.get(KEY_LOGS);
+      if (rawLogs) logs = JSON.parse(rawLogs);
+      const rawGoals = SafeStore.get(KEY_GOALS);
+      if (rawGoals) goals = JSON.parse(rawGoals);
+    } catch (e) {}
+
+    const todayObj = new Date();
+    let calYear = todayObj.getFullYear();
+    let calMonth = todayObj.getMonth();
+    let activeDate = toDateKey(todayObj);
+
+    let swInterval = null, swSec = 0;
+    let restInterval = null, restSec = 90;
+
+    function toDateKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function defaultSplitForDate(dateKey) {
+      const [y, m, d] = dateKey.split("-").map(Number);
+      const day = new Date(y, m - 1, d).getDay();
+      return ["rest", "push1", "pull1", "legs1", "push2", "pull2", "legs2"][day];
+    }
+
+    function createDayObject(splitKey) {
+      const tpl = SPLITS[splitKey] || SPLITS.push1;
+      return {
+        split: splitKey,
+        durationMinutes: 0,
+        bodyweight: "",
+        waterMl: 0,
+        supplements: [],
+        foods: [],
+        notes: "",
+        exercises: tpl.list.map(item => ({
+          muscle: item.m,
+          name: item.n,
+          targetReps: item.r,
+          targetRpe: item.p,
+          sets: Array.from({ length: item.s }, () => ({
+            type: "N", weight: "", reps: "", rpe: item.p, done: false
+          }))
+        }))
+      };
+    }
+
+    function ensureDay(dateKey) {
+      if (!logs[dateKey]) {
+        logs[dateKey] = createDayObject(defaultSplitForDate(dateKey));
+      }
+      const d = logs[dateKey];
+      if (!d.foods) d.foods = [];
+      if (!d.supplements) d.supplements = [];
+      if (typeof d.waterMl !== "number") d.waterMl = 0;
+      if (!d.exercises) d.exercises = [];
+      return d;
+    }
+
+    function saveAll() {
+      SafeStore.set(KEY_LOGS, JSON.stringify(logs));
+      SafeStore.set(KEY_GOALS, JSON.stringify(goals));
+      renderCalendar();
+      updateSummaryStrip();
+      renderNutrition();
+    }
+
+    // ==========================================
+    // 4. CALENDAR & NAVIGATION
+    // ==========================================
+    function toggleCalendarDrawer() {
+      document.getElementById("calDrawer").classList.toggle("open");
+    }
+
+    function renderCalendar() {
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      document.getElementById("calMonthTitle").textContent = `${months[calMonth]} ${calYear}`;
+
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+      const todayKey = toDateKey(new Date());
+
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement("div");
+        empty.className = "cal-cell empty";
+        grid.appendChild(empty);
+      }
+
+      for (let d = 1; d <= totalDays; d++) {
+        const key = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const cell = document.createElement("div");
+        cell.className = "cal-cell";
+        if (key === activeDate) cell.classList.add("selected");
+        if (key === todayKey) cell.classList.add("today");
+
+        const dayLog = logs[key];
+        let dotsHtml = "";
+        if (dayLog) {
+          dotsHtml = `<div class="dot-row">
+            ${dayLog.split ? `<span class="split-dot dot-${dayLog.split}"></span>` : ""}
+            ${dayLog.foods && dayLog.foods.length ? `<span class="food-dot"></span>` : ""}
+          </div>`;
+        }
+
+        cell.innerHTML = `<span>${d}</span>${dotsHtml}`;
+        cell.onclick = () => {
+          selectDate(key);
+          document.getElementById("calDrawer").classList.remove("open");
+        };
+        grid.appendChild(cell);
+      }
+    }
+
+    function changeMonth(dir) {
+      calMonth += dir;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      else if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+    }
+
+    function jumpToToday() {
+      const t = new Date();
+      calYear = t.getFullYear();
+      calMonth = t.getMonth();
+      selectDate(toDateKey(t));
+      document.getElementById("calDrawer").classList.remove("open");
+    }
+
+    function selectDate(dateKey) {
+      activeDate = dateKey;
+      ensureDay(activeDate);
+
+      const [y, m, d] = activeDate.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      document.getElementById("topDateText").textContent = dt.toLocaleDateString("en-US", {
+        weekday: "short", month: "short", day: "numeric"
+      });
+
+      renderCalendar();
+      renderWorkout();
+      renderNutrition();
+    }
+
+    function switchView(viewName, btn) {
+      document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
+      document.getElementById(`view-${viewName}`).classList.add("active");
+      document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (viewName === "tools") {
+        calcPlates();
+        calc1RM();
+      } else if (viewName === "stats") {
+        renderStatsView();
+      }
+    }
+
+    // ==========================================
+    // 5. WORKOUT RENDERING & GHOST MEMORY
+    // ==========================================
+    function getGhostBest(exName) {
+      const pastKeys = Object.keys(logs).filter(k => k < activeDate).sort().reverse();
+      for (const k of pastKeys) {
+        const day = logs[k];
+        if (!day || !day.exercises) continue;
+        const found = day.exercises.find(e => e.name.toLowerCase() === exName.toLowerCase());
+        if (found) {
+          const valid = found.sets.filter(s => s.done && parseFloat(s.weight) > 0);
+          if (valid.length > 0) {
+            const best = valid.reduce((a, b) => (parseFloat(b.weight) > parseFloat(a.weight) ? b : a), valid[0]);
+            return { weight: best.weight, reps: best.reps, sets: valid };
+          }
+        }
+      }
+      return null;
+    }
+
+    function copyGhostSets(exIdx) {
+      const ex = logs[activeDate].exercises[exIdx];
+      const ghost = getGhostBest(ex.name);
+      if (!ghost) return;
+      ex.sets = ghost.sets.map(s => ({
+        type: s.type || "N", weight: s.weight, reps: s.reps, rpe: s.rpe || ex.targetRpe, done: false
+      }));
+      saveAll();
+      renderWorkout();
+    }
+
+    function changeDaySplit(splitKey) {
+      const cur = ensureDay(activeDate);
+      const fresh = createDayObject(splitKey);
+      fresh.durationMinutes = cur.durationMinutes;
+      fresh.bodyweight = cur.bodyweight;
+      fresh.waterMl = cur.waterMl;
+      fresh.supplements = cur.supplements;
+      fresh.foods = cur.foods;
+      fresh.notes = cur.notes;
+      logs[activeDate] = fresh;
+      saveAll();
+      renderWorkout();
+    }
+
+    function renderWorkout() {
+      const day = ensureDay(activeDate);
+      const splitMeta = SPLITS[day.split] || SPLITS.push1;
+      document.getElementById("splitTitleBanner").textContent = splitMeta.title;
+
+      const order = ["push1", "pull1", "legs1", "push2", "pull2", "legs2", "rest"];
+      document.querySelectorAll("#splitSelectorRow .split-chip").forEach((btn, i) => {
+        btn.className = "split-chip";
+        if (order[i] === day.split) btn.classList.add(`active-${day.split}`);
+      });
+
+      document.getElementById("minsInput").value = day.durationMinutes || "";
+      document.getElementById("bwInput").value = day.bodyweight || "";
+      document.getElementById("notesInput").value = day.notes || "";
+
+      const listEl = document.getElementById("exercisesList");
+      listEl.innerHTML = "";
+
+      if (day.split === "rest") {
+        listEl.innerHTML = `<div class="card" style="text-align:center; padding:26px 14px;">
+          <h3>🧘‍♂️ Rest & Muscle Growth Day</h3>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-top:6px;">Switch to the <strong>Calories</strong> tab below to hit your protein & hydration goals!</p>
+        </div>`;
+        updateSummaryStrip();
+        return;
+      }
+
+      let lastMuscle = "";
+      day.exercises.forEach((ex, exIdx) => {
+        if (ex.muscle !== lastMuscle) {
+          lastMuscle = ex.muscle;
+          const mHeader = document.createElement("div");
+          mHeader.className = "muscle-tag";
+          mHeader.textContent = `⚡ ${lastMuscle}`;
+          listEl.appendChild(mHeader);
+        }
+
+        const allDone = ex.sets.length > 0 && ex.sets.every(s => s.done);
+        const ghost = getGhostBest(ex.name);
+        const card = document.createElement("div");
+        card.className = `ex-card ${allDone ? "done-card" : ""}`;
+
+        const rowsHtml = ex.sets.map((s, sIdx) => `
+          <div class="set-row-grid ${s.done ? "done-row" : ""}">
+            <button class="type-btn type-${s.type || 'N'}" onclick="cycleType(${exIdx}, ${sIdx})">${s.type || 'N'}</button>
+            <input type="number" step="0.5" class="mob-input" placeholder="kg" value="${s.weight}"
+              oninput="editSet(${exIdx}, ${sIdx}, 'weight', this.value)" />
+            <input type="number" class="mob-input" placeholder="${ex.targetReps}" value="${s.reps}"
+              oninput="editSet(${exIdx}, ${sIdx}, 'reps', this.value)" />
+            <input type="number" step="0.5" class="mob-input" placeholder="${ex.targetRpe}" value="${s.rpe}"
+              oninput="editSet(${exIdx}, ${sIdx}, 'rpe', this.value)" />
+            <input type="checkbox" class="mob-check" ${s.done ? "checked" : ""}
+              onchange="toggleDone(${exIdx}, ${sIdx}, this.checked)" />
+            <button class="del-set-btn" onclick="deleteSet(${exIdx}, ${sIdx})">✕</button>
+          </div>
+        `).join("");
+
+        card.innerHTML = `
+          <input type="text" class="ex-name-input" value="${ex.name}" onchange="editExName(${exIdx}, this.value)" />
+          <div class="ex-meta-row">
+            <span>Target Reps: <strong>${ex.targetReps}</strong></span>
+            <span>Target PE: <strong>${ex.targetRpe}</strong></span>
+          </div>
+          ${ghost ? `<div class="ghost-bar">
+            <span>👻 Last Best: <strong>${ghost.weight}kg × ${ghost.reps}</strong></span>
+            <button class="btn btn-dark" style="padding:3px 8px; font-size:0.7rem;" onclick="copyGhostSets(${exIdx})">Copy Weights</button>
+          </div>` : ""}
+
+          <div class="set-header-grid">
+            <div>Set</div><div>kg</div><div>Reps</div><div>PE</div><div>✓</div><div></div>
+          </div>
+          ${rowsHtml}
+          <div class="ex-actions">
+            <button class="btn btn-dark" onclick="addSet(${exIdx})">+ Add Set</button>
+            <button class="btn btn-dark" style="color:var(--text-muted);" onclick="deleteExercise(${exIdx})">Remove</button>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+
+      updateSummaryStrip();
+    }
+
+    function cycleType(exIdx, sIdx) {
+      const types = ["N", "W", "D", "F"];
+      const s = logs[activeDate].exercises[exIdx].sets[sIdx];
+      s.type = types[(types.indexOf(s.type || "N") + 1) % types.length];
+      saveAll();
+      renderWorkout();
+    }
+
+    function editSet(exIdx, sIdx, field, val) {
+      logs[activeDate].exercises[exIdx].sets[sIdx][field] = val;
+      saveAll();
+    }
+
+    function toggleDone(exIdx, sIdx, checked) {
+      const ex = logs[activeDate].exercises[exIdx];
+      const s = ex.sets[sIdx];
+      s.done = checked;
+      if (checked && !s.reps) {
+        const m = String(ex.targetReps).match(/\d+/);
+        if (m) s.reps = m[0];
+      }
+      if (checked) startRestTimer(90);
+      saveAll();
+      renderWorkout();
+    }
+
+    function editExName(exIdx, val) {
+      logs[activeDate].exercises[exIdx].name = val;
+      saveAll();
+    }
+
+    function addSet(exIdx) {
+      const ex = logs[activeDate].exercises[exIdx];
+      const prev = ex.sets[ex.sets.length - 1] || { weight: "", reps: "", rpe: ex.targetRpe };
+      ex.sets.push({ type: "N", weight: prev.weight, reps: prev.reps, rpe: prev.rpe, done: false });
+      saveAll();
+      renderWorkout();
+    }
+
+    function deleteSet(exIdx, sIdx) {
+      logs[activeDate].exercises[exIdx].sets.splice(sIdx, 1);
+      saveAll();
+      renderWorkout();
+    }
+
+    function deleteExercise(exIdx) {
+      logs[activeDate].exercises.splice(exIdx, 1);
+      saveAll();
+      renderWorkout();
+    }
+
+    function saveMins(v) { logs[activeDate].durationMinutes = Number(v) || 0; saveAll(); }
+    function saveBw(v) { logs[activeDate].bodyweight = v; saveAll(); }
+    function saveNotes(v) { logs[activeDate].notes = v; saveAll(); }
+
+    function updateSummaryStrip() {
+      const day = ensureDay(activeDate);
+      let total = 0, done = 0, vol = 0;
+      day.exercises.forEach(ex => ex.sets.forEach(s => {
+        total++;
+        if (s.done) {
+          done++;
+          vol += (parseFloat(s.weight) || 0) * (parseFloat(s.reps) || 0);
+        }
+      }));
+      const mins = Number(day.durationMinutes) || Math.round(done * 2.5);
+      const burned = Math.round(mins * 5.5 + done * 4);
+      const pct = total > 0 ? Math.round((done / total) * 100) : (day.split === "rest" ? 100 : 0);
+
+      document.getElementById("statSets").textContent = `${done}/${total}`;
+      document.getElementById("statVol").textContent = `${vol}kg`;
+      document.getElementById("statMins").textContent = `${day.durationMinutes || 0}m`;
+      document.getElementById("statBurn").textContent = `${burned}`;
+      document.getElementById("scoreBanner").textContent = `${pct}% Done`;
+      document.getElementById("workoutProgFill").style.width = `${pct}%`;
+    }
+
+    // ==========================================
+    // 6. IN-APP MODALS (NO BLOCKED PROMPTS)
+    // ==========================================
+    function openAddExerciseModal() {
+      document.getElementById("newExName").value = "";
+      document.getElementById("addExModal").classList.add("open");
+    }
+
+    function confirmAddExercise() {
+      const m = document.getElementById("newExMuscle").value;
+      const n = document.getElementById("newExName").value.trim() || "Custom Exercise";
+      logs[activeDate].exercises.push({
+        muscle: m, name: n, targetReps: "8-12", targetRpe: "8.5",
+        sets: [
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false },
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false },
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false }
+        ]
+      });
+      closeModals();
+      saveAll();
+      renderWorkout();
+    }
+
+    function openMacroModal() {
+      document.getElementById("goalCal").value = goals.cal;
+      document.getElementById("goalPro").value = goals.pro;
+      document.getElementById("goalCarb").value = goals.carb;
+      document.getElementById("goalFat").value = goals.fat;
+      document.getElementById("macroModal").classList.add("open");
+    }
+
+    function saveMacroGoals() {
+      goals = {
+        cal: Number(document.getElementById("goalCal").value) || 2500,
+        pro: Number(document.getElementById("goalPro").value) || 160,
+        carb: Number(document.getElementById("goalCarb").value) || 280,
+        fat: Number(document.getElementById("goalFat").value) || 70
+      };
+      closeModals();
+      saveAll();
+    }
+
+    function closeModals() {
+      document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.remove("open"));
+    }
+
+    // ==========================================
+    // 7. NUTRITION, WATER & SUPPLEMENTS
+    // ==========================================
+    function initQuickFoods() {
+      document.getElementById("quickFoodsRow").innerHTML = STAPLES.map((f, i) => `
+        <button class="food-chip-btn" onclick="quickLogFood(${i})">
+          <strong>+ ${f.name}</strong>
+          <small>${f.cal} kcal • ${f.pro}g P</small>
+        </button>
+      `).join("");
+    }
+
+    function quickLogFood(i) {
+      logs[activeDate].foods.push({ ...STAPLES[i] });
+      saveAll();
+    }
+
+    function addCustomFood() {
+      const name = document.getElementById("fName").value.trim() || "Meal";
+      const cal = Number(document.getElementById("fCal").value) || 0;
+      const pro = Number(document.getElementById("fPro").value) || 0;
+      const carb = Number(document.getElementById("fCarb").value) || 0;
+      const fat = Number(document.getElementById("fFat").value) || 0;
+      logs[activeDate].foods.push({ name, cal, pro, carb, fat });
+      ["fName", "fCal", "fPro", "fCarb", "fFat"].forEach(id => document.getElementById(id).value = "");
+      saveAll();
+    }
+
+    function removeFood(idx) {
+      logs[activeDate].foods.splice(idx, 1);
+      saveAll();
+    }
+
+    function addWater(ml) {
+      const day = ensureDay(activeDate);
+      day.waterMl = Math.max(0, (day.waterMl || 0) + ml);
+      saveAll();
+    }
+
+    function toggleSupp(name) {
+      const day = ensureDay(activeDate);
+      const idx = day.supplements.indexOf(name);
+      if (idx >= 0) day.supplements.splice(idx, 1);
+      else day.supplements.push(name);
+      saveAll();
+    }
+
+    function renderNutrition() {
+      const day = ensureDay(activeDate);
+      const t = day.foods.reduce((a, f) => ({
+        cal: a.cal + (Number(f.cal) || 0),
+        pro: a.pro + (Number(f.pro) || 0),
+        carb: a.carb + (Number(f.carb) || 0),
+        fat: a.fat + (Number(f.fat) || 0)
+      }), { cal: 0, pro: 0, carb: 0, fat: 0 });
+
+      document.getElementById("calText").textContent = `${Math.round(t.cal)} / ${goals.cal}`;
+      document.getElementById("proText").textContent = `${Math.round(t.pro)} / ${goals.pro}g`;
+      document.getElementById("carbText").textContent = `${Math.round(t.carb)} / ${goals.carb}g`;
+      document.getElementById("fatText").textContent = `${Math.round(t.fat)} / ${goals.fat}g`;
+
+      document.getElementById("calBar").style.width = `${Math.min(100, (t.cal / goals.cal) * 100)}%`;
+      document.getElementById("proBar").style.width = `${Math.min(100, (t.pro / goals.pro) * 100)}%`;
+      document.getElementById("carbBar").style.width = `${Math.min(100, (t.carb / goals.carb) * 100)}%`;
+      document.getElementById("fatBar").style.width = `${Math.min(100, (t.fat / goals.fat) * 100)}%`;
+
+      const fList = document.getElementById("loggedFoodsList");
+      if (!day.foods.length) {
+        fList.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No meals logged yet today.</div>`;
+      } else {
+        fList.innerHTML = day.foods.map((f, i) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
+            <div><strong>${f.name}</strong><br/><small style="color:var(--text-muted);">${f.cal} kcal • ${f.pro}g P • ${f.carb}g C • ${f.fat}g F</small></div>
+            <button class="del-set-btn" onclick="removeFood(${i})">✕</button>
+          </div>
+        `).join("");
+      }
+
+      document.getElementById("waterText").textContent = `${day.waterMl || 0} / 3500 ml`;
+      document.getElementById("waterBar").style.width = `${Math.min(100, ((day.waterMl || 0) / 3500) * 100)}%`;
+
+      document.getElementById("suppRow").innerHTML = SUPPS.map(s => {
+        const on = day.supplements.includes(s);
+        return `<button class="btn ${on ? 'btn-green' : 'btn-dark'}" style="font-size:0.74rem;" onclick="toggleSupp('${s}')">${on ? '✓ ' : '+ '}${s}</button>`;
+      }).join("");
+    }
+
+    // ==========================================
+    // 8. TOOLS, TIMERS & ANALYTICS
+    // ==========================================
+    function fmtTime(s) {
+      return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    }
+
+    function toggleWorkoutTimer() {
+      if (swInterval) {
+        clearInterval(swInterval);
+        swInterval = null;
+      } else {
+        swInterval = setInterval(() => {
+          swSec++;
+          document.getElementById("topStopwatch").textContent = fmtTime(swSec);
+        }, 1000);
+      }
+    }
+
+    function saveTimerToMins() {
+      const m = Math.max(1, Math.round(swSec / 60));
+      logs[activeDate].durationMinutes = m;
+      saveAll();
+      renderWorkout();
+    }
+
+    function resetWorkoutTimer() {
+      clearInterval(swInterval);
+      swInterval = null;
+      swSec = 0;
+      document.getElementById("topStopwatch").textContent = "00:00";
+    }
+
+    function startRestTimer(sec) {
+      clearInterval(restInterval);
+      restSec = sec;
+      document.getElementById("topRestTimer").textContent = fmtTime(restSec);
+      restInterval = setInterval(() => {
+        restSec--;
+        document.getElementById("topRestTimer").textContent = fmtTime(Math.max(0, restSec));
+        if (restSec <= 0) {
+          clearInterval(restInterval);
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.frequency.value = 880;
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.35);
+          } catch (e) {}
+        }
+      }, 1000);
+    }
+
+    function calcPlates() {
+      const w = parseFloat(document.getElementById("plateInput").value) || 20;
+      let side = Math.max(0, (w - 20) / 2);
+      const sizes = [25, 20, 15, 10, 5, 2.5, 1.25];
+      const out = [];
+      sizes.forEach(sz => {
+        let count = 0;
+        while (side >= sz - 0.001) { side -= sz; count++; }
+        if (count > 0) out.push(`${count} × ${sz}kg`);
+      });
+      document.getElementById("plateResultText").textContent =
+        out.length ? `Per Side: ${out.join(" + ")}` : "Empty 20kg Barbell";
+    }
+
+    function calc1RM() {
+      const w = parseFloat(document.getElementById("rmW").value) || 0;
+      const r = parseFloat(document.getElementById("rmR").value) || 1;
+      const rm = r === 1 ? w : w * (1 + r / 30);
+      document.getElementById("rmOut").textContent = `Est. 1RM: ${rm.toFixed(1)} kg`;
+    }
+
+    function renderStatsView() {
+      const [y, m, d] = activeDate.split("-").map(Number);
+      const vol = { Chest: 0, Back: 0, Shoulders: 0, Triceps: 0, Biceps: 0, Legs: 0 };
+      for (let i = 0; i < 7; i++) {
+        const k = toDateKey(new Date(y, m - 1, d - i));
+        if (logs[k] && logs[k].exercises) {
+          logs[k].exercises.forEach(ex => {
+            const c = ex.sets.filter(s => s.done && s.type !== "W").length;
+            vol[ex.muscle] = (vol[ex.muscle] || 0) + c;
+          });
+        }
+      }
+      document.getElementById("weeklyVolList").innerHTML = Object.keys(vol).map(mus => `
+        <div style="margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:3px;">
+            <span>${mus}</span><span style="color:var(--accent);">${vol[mus]} sets</span>
+          </div>
+          <div class="prog-bg"><div class="prog-fill" style="width:${Math.min(100, (vol[mus]/20)*100)}%;"></div></div>
+        </div>
+      `).join("");
+
+      const prs = {};
+      Object.keys(logs).forEach(k => {
+        (logs[k].exercises || []).forEach(ex => {
+          ex.sets.forEach(s => {
+            const w = parseFloat(s.weight), r = parseFloat(s.reps);
+            if (s.done && w > 0 && r > 0) {
+              const e1rm = r === 1 ? w : w * (1 + r / 30);
+              if (!prs[ex.name] || e1rm > prs[ex.name].e1rm) prs[ex.name] = { w, r, e1rm, k };
+            }
+          });
+        });
+      });
+
+      const prArr = Object.entries(prs).sort((a, b) => b[1].e1rm - a[1].e1rm);
+      document.getElementById("prList").innerHTML = prArr.length ? prArr.map(([name, p]) => `
+        <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
+          <div><strong>${name}</strong><br/><small style="color:var(--text-muted);">${p.w}kg × ${p.r} (${p.k})</small></div>
+          <div style="color:var(--accent); font-weight:900;">${Math.round(p.e1rm)} kg</div>
+        </div>
+      `).join("") : `<div style="font-size:0.8rem; color:var(--text-muted);">Log and tick sets to see your PRs!</div>`;
+    }
+
+    function exportBackup() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ workoutLogs: logs, macroGoals: goals }));
+      const a = document.createElement("a");
+      a.href = str;
+      a.download = `ppl-mobile-backup-${activeDate}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importBackup(e) {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        try {
+          const d = JSON.parse(ev.target.result);
+          logs = d.workoutLogs || d;
+          if (d.macroGoals) goals = d.macroGoals;
+          saveAll();
+          selectDate(activeDate);
+        } catch (err) {}
+      };
+      r.readAsText(f);
+    }
+
+    // Boot App
+    initQuickFoods();
+    selectDate(activeDate);
+  </script>
+</body>
+</html>

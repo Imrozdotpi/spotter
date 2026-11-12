@@ -628,10 +628,10 @@
   }
 
   function demoCardHtml() {
-    if (typeof SpotterDemo === "undefined") return "";
     var on = SpotterStore.isDemo();
+    if (typeof SpotterDemo === "undefined" && !on) return "";
     return '<div class="card"><div class="sp-title">Demo mode</div>' +
-      '<div class="sp-note">Loads 6 weeks of made-up training, sleep, food, one exam week and SAMPLE canteen prices into a separate storage area. Your real logbook is not touched and comes back when you turn demo mode off. Changes you make to demo data are thrown away.</div>' +
+      '<div class="sp-note">Loads 6 weeks of made-up training, sleep, food, one exam week and SAMPLE canteen prices into a separate storage area. Your real logbook is not touched and comes back when you turn demo mode off. Demo data is rebuilt fresh each time demo mode is turned on, and each new day.</div>' +
       '<button class="btn ' + (on ? "btn-dark" : "btn-green") + ' sp-btn" style="width:100%; margin-top:10px;" onclick="SpotterUI.toggleDemo()">' + (on ? "Turn demo mode off (back to my data)" : "Turn demo mode on") + "</button></div>";
   }
 
@@ -805,16 +805,28 @@
   // ==================================================================
   // Demo mode
   // ==================================================================
-  function toggleDemo() {
-    if (typeof SpotterDemo === "undefined") return;
-    if (SpotterStore.isDemo()) SpotterStore.exitDemo();
-    else SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
-    // Reload everything from whichever storage area is now active.
+  // Reloads logs, goals and Spotter state from whichever storage area (real or demo) is now active.
+  function reloadFromStorage() {
     var l = SpotterStore.loadLogs(), g = SpotterStore.loadGoals();
     logs = (l && typeof l === "object") ? l : {};
     goals = (g && typeof g === "object") ? g : { cal: DEFAULT_GOALS.cal, pro: DEFAULT_GOALS.pro, carb: DEFAULT_GOALS.carb, fat: DEFAULT_GOALS.fat };
     loadState();
     ui.gapOverride = null; ui.solve = null; ui.loggedNote = "";
+  }
+
+  // Demo data is built around "today". If demo mode was left on overnight, rebuild it for the new day.
+  function refreshStaleDemo() {
+    if (!SpotterStore.isDemo() || typeof SpotterDemo === "undefined") return;
+    if (state.settings.demoDate === todayKey()) return;
+    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
+    reloadFromStorage();
+  }
+
+  function toggleDemo() {
+    if (SpotterStore.isDemo()) SpotterStore.exitDemo();
+    else if (typeof SpotterDemo === "undefined") return;
+    else SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
+    reloadFromStorage();
     var t = new Date();
     calYear = t.getFullYear();
     calMonth = t.getMonth();
@@ -882,13 +894,13 @@
   // ------------------------------------------------------------------
   function init() {
     loadState();
+    refreshStaleDemo();
     SpotterStore.saveSpotter(state); // writes defaults on first run; a no-op change afterwards
     try {
       // Ask the browser to keep this site's storage. No network involved.
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
     } catch (e) {}
-    renderWorkout();
-    renderNutrition();
+    selectDate(activeDate); // redraw the tracker now that Spotter is ready
     refresh();
   }
 

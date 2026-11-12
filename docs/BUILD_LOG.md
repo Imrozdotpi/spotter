@@ -123,3 +123,22 @@ Nothing was deployed, pushed or published by the AI. There is no git remote.
 - The nav icon for the Spotter tab is an emoji (🤝). Change it if you prefer another.
 
 **AI-generated:** all of M3 and M4.
+
+## M5: demo mode
+
+**Built**
+- `src/spotter-demo.js`: a seeded, deterministic generator of 6 weeks of made-up data (PPL sessions with progression and noise, session RPE, sleep, foods, one past and one current exam week, SAMPLE canteen prices). Same date and seed always give the same data.
+- Demo toggle in the Spotter tab. Demo data is written only to `spotter_demo_*` keys. An amber "DEMO DATA" banner sits in the header on every screen. If demo mode is left on overnight, the data is rebuilt for the new day.
+- Opened on any weekday, the demo shows: exam in 2 days, load ratio about 1.4 ("Load is climbing fast"), short sleep, the three readiness verdicts on the first three lifts, and the poster case (40 g protein short, ₹60).
+
+**Tests added (12, total 112 passing)** in `tests/demo.test.js`: determinism, 42 days, SAMPLE prices equal the fixture, all three Acts for each day of the week, real keys byte-identical after demo on → edits → off, demo export refused on import.
+- Checked in the browser with the real toggle button: on → edits → off left every non-demo key unchanged.
+
+**For Imroz to verify**
+- The SAMPLE prices are placeholders. Replace them only in your real canteen list, not here.
+
+**AI-generated:** all of M5.
+
+## STATUS: build paused after M5 (usage limit reached)
+
+Not done yet: M6 (manifest, service worker, icons, rebrand of title/header), M7 (`tests/validate.js`, VALIDATION.md, ARCHITECTURE, DECISIONS, LIMITATIONS, MANUAL_TESTS, README), M8 (final QA at phone width, import flow check in the browser).

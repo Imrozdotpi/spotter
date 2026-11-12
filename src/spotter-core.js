@@ -888,7 +888,7 @@
       "Above +1 swing is green, below −1 swing is red, in between is amber."
     ];
     if (r.dropped) notes.push("One past session (" + r.dropped.date + ", " + fmt(r.dropped.e1rm, 1) + " kg) was far off the others and was set aside, so a single odd day does not bend your trend.");
-    notes.push(r.historyConfirmed + " of the " + r.n + " past sessions have an RPE you typed yourself. The rest used the pre-filled target RPE.");
+    notes.push(r.historyConfirmed + " of the " + r.n + " past sessions have an RPE you typed yourself." + (r.historyConfirmed < r.n ? " The rest used a pre-filled target RPE, so the trend is rougher than it looks." : ""));
     var low = lowConfidenceText(r);
     if (low) notes.push(low);
     notes.push("RPE is subjective, so Spotter trusts your trend over any single day.");

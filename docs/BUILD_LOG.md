@@ -81,3 +81,45 @@ Nothing was deployed, pushed or published by the AI. There is no git remote.
 - That an old backup from the current tracker restores correctly (MANUAL_TESTS.md).
 
 **AI-generated:** all changes in this milestone. The untouched parts of `index.html` are Imroz's original code.
+
+## M3: UI for the three Acts, Spotter tab, Tools and Stats
+
+**Built** (all in `src/spotter-ui.js`, drawn into containers added to `index.html` in M2)
+- **ACT I:** a readiness chip on each exercise card under the ghost bar, in the poster's words and colours ("Go for a PR" green, "Normal day" amber, "Drop a set" red), with the number of sessions used. Grey chips for "Building your trend: X of 4 sessions logged" and "No readable set yet". The chip updates in place when a ticked set is edited, without closing the keyboard.
+- **One-tap RPE confirm** (agreed in Phase 0): under a low-confidence note, "Yes, it felt like RPE 8.5" sets `rpeConfirmed` without retyping.
+- **ACT II:** session RPE chips (1–10, two rows of five so each is at least 44 px), a sleep input next to minutes and bodyweight, and the Autopilot card at the top of the workout view (exam countdown, load vs 4-week average, ratio and band, sleep, suggestion, Apply/Undo). The card only appears when there is something to say.
+- **Weekly-load chart** in Stats: 6 bars in plain SVG, this week outlined, exam weeks amber, weeks with no logged load drawn as a dashed outline.
+- **ACT III:** the "Protein on a Hostel Budget" card in the Calories view (gap, budget, calories left, "Find cheapest combo", result list with totals, "Log this combo").
+- **Spotter tab:** today's brief, the "How it works" pipeline with the poster wording, settings (exam dates, calorie floor, default budget, canteen catalog with inline prices and an editor, backup/restore), and the About line.
+- **Tools:** the 1RM calculator takes an RPE and shows plain Epley and the RPE-adjusted e1RM.
+
+**Tests**
+- No new unit tests (the UI has no logic of its own; everything it shows comes from the tested core).
+- Checked in the browser at 393×852 through the page's DOM: all five tabs render, no console errors, nothing overflows the screen width, the three verdict chips appear, the solver card returns the expected combo, apply → undo of maintenance mode leaves the day byte-identical.
+- Injection check: an exam label and a canteen item named `<img src=x onerror=...>` were shown as text and did not run.
+
+**Decisions made here**
+- "Log this combo" adds one food entry per item (for example "2 × 2 Boiled Eggs"), not one per serving.
+- The protein-gap box shows goal − logged until you type in it; clearing it returns to the automatic value.
+- A solver answer disappears as soon as any input it used changes, so a stale answer is never shown.
+- Deleting a canteen item needs two taps.
+
+## M4: "Why?" explanations and safety messages
+
+**Built**
+- A "Why?" bottom sheet for every Spotter output: each readiness chip (inputs, e1RM, prediction, % difference, typical swing, z, sessions used, formula, and the list of sessions in the trend), the Autopilot card and the chart (numbers, formula, band limits, and the set plan maintenance mode would apply), the solver (inputs, model, tie-break rule, ignored items) and the low-intake note.
+- Calorie-floor warning inside the macro targets sheet when the goal is under the floor.
+- The low-intake note on the Calories view, in calm wording, with its own "Why?".
+- "A warning flag, not an injury predictor" and "Wellness guidance, not medical advice" on the Autopilot card.
+- All explanation text comes from fixed templates in `src/spotter-core.js` (section 6). No language model is involved.
+
+**Tests**
+- Explanation content is covered by unit tests written in M1 (required rows, formulas, exact poster sentences).
+
+**One wording fix:** the "N of N past sessions have an RPE you typed yourself" note no longer adds "The rest…" when there is no rest.
+
+**For Imroz to verify**
+- Read each "Why?" panel on the phone. These are the sentences the jury will see.
+- The nav icon for the Spotter tab is an emoji (🤝). Change it if you prefer another.
+
+**AI-generated:** all of M3 and M4.

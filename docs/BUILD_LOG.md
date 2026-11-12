@@ -182,3 +182,30 @@ Nothing was deployed, pushed or published by the AI. There is no git remote.
 - The worked examples in ARCHITECTURE.md: redo one by hand before the jury does.
 
 **AI-generated:** all of M7. The decisions themselves remain Imroz's to make.
+
+## M8: final QA
+
+**Checked** (desktop browser at 393×852, through the page's DOM, served from a `/spotter/` subfolder)
+- **Existing user path:** storage was seeded with the legacy fixture under the two original keys, then the app was loaded. The stored log was byte-identical after start-up. After the first save, every original field of every day was unchanged; only `sessionRpe`, `sleepHours` and `spotter` were added to the day that was opened. Readiness gave a verdict on the legacy data, labelled low confidence.
+- **Import:** a non-JSON file and an empty file were refused with nothing changed; Cancel changed nothing; the old-format file imported after the confirm sheet; Undo restored the previous state exactly and cleared the undo copy.
+- **Export:** file name `spotter-backup-<date>.json`, keys `workoutLogs, macroGoals, spotter, schemaVersion, app, exportedAt`, logs identical to memory, and the file validates on re-import. (The file contents were captured in the test; the actual download prompt was not exercised.)
+- **Old features:** split change, ghost bar, Copy Weights, add/delete set, set type cycle, tick with rest timer, add/remove exercise, minutes/bodyweight/notes, summary strip, stopwatch, plate calculator (100 kg → 1 × 25 + 1 × 15 per side), 1RM tool (Epley 101.3; equal to the RPE-adjusted value at RPE 10), quick food, custom food, remove food, water, supplements, macro targets, weekly sets, PR list, calendar month change and Jump to Today.
+- **Spotter features in demo mode:** the three verdicts, the low-confidence note and one-tap confirm, auto-filled reps flag set and cleared, a past date using only earlier sessions, Autopilot card, maintenance apply and exact undo, session RPE and sleep, chart, solver, canteen editor, exams, floor warning, low-intake note, every "Why?" sheet.
+- **Layout:** no element wider than the screen in any of the five views; all new buttons, chips and inputs are at least 44 px tall.
+- **Network:** every request was to the app's own origin. No console errors.
+- **Offline:** with the server stopped, the app loaded from the service worker's saved copy, the Spotter tab rendered and a change was saved.
+
+**Fix made during QA**
+- The new sleep input sat in a row of 36 px inputs. The three inputs in that row (minutes, bodyweight, sleep) are now 44 px so the new one meets the tap-target rule and the row stays aligned. This slightly enlarges two existing inputs.
+
+**Not done, and why**
+- **Screenshots in `docs/screenshots/`:** not produced. Playwright is not installed, and the built-in browser pane was hidden during the run, so its screenshots were stale. Take them on the phone.
+- **Opening from `file://`:** not run (the browser pane cannot open local files). By design it should work: all scripts are relative script tags and the service worker is skipped off http(s). Please double-click `index.html` once to confirm.
+- **A real iPhone:** everything in `docs/MANUAL_TESTS.md`.
+
+**Final numbers**
+- `npm test`: 112 tests, 112 pass.
+- `npm run validate`: all checks pass; 600/600 solver cases agree with brute force; 0 constraint violations.
+- No `.github` folder, no git remote, no deployment configuration.
+
+**AI-generated:** the QA run and this entry.

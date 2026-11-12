@@ -768,16 +768,16 @@
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
           <div>
             <label style="font-size:0.72rem; color:var(--text-muted);">Duration (min)</label>
-            <input type="number" id="minsInput" class="mob-input" placeholder="0" oninput="saveMins(this.value)" />
+            <input type="number" id="minsInput" class="mob-input sp-in" placeholder="0" oninput="saveMins(this.value)" />
           </div>
           <div>
             <label style="font-size:0.72rem; color:var(--text-muted);">Bodyweight (kg)</label>
-            <input type="number" step="0.1" id="bwInput" class="mob-input" placeholder="kg" oninput="saveBw(this.value)" />
+            <input type="number" step="0.1" id="bwInput" class="mob-input sp-in" placeholder="kg" oninput="saveBw(this.value)" />
           </div>
-          <!-- SPOTTER HOOK: last night's sleep -->
+          <!-- SPOTTER HOOK: last night's sleep. The three inputs in this row are 44px tall (sp-in) so they line up. -->
           <div>
             <label style="font-size:0.72rem; color:var(--text-muted);">Sleep last night (h)</label>
-            <input type="number" step="0.5" min="0" max="14" id="spSleepInput" class="mob-input" placeholder="h" oninput="SpotterUI.saveSleep(this.value)" />
+            <input type="number" step="0.5" min="0" max="14" id="spSleepInput" class="mob-input sp-in" placeholder="h" oninput="SpotterUI.saveSleep(this.value)" />
           </div>
         </div>
 

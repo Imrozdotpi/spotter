@@ -51,3 +51,33 @@ Nothing was deployed, pushed or published by the AI. There is no git remote.
 - Decision 1 above.
 
 **AI-generated:** all files in this milestone.
+
+## M2: data model, migrate(), backup/import, rpeConfirmed
+
+**Built**
+- `mobile-gym.html` renamed to `index.html` in its own commit (`2a46595`, no content change).
+- 32 marked edits to `index.html` (search for `SPOTTER HOOK`):
+  - Storage now goes through `SpotterStore` (from the core). In normal use it reads and writes the two original keys with the same content as before.
+  - `ensureDay` lazily adds `sessionRpe`, `sleepHours` and `spotter` to a day.
+  - New sets get `rpeConfirmed: false` in `createDayObject`, `addSet`, `copyGhostSets` and `confirmAddExercise`. `editSet` sets `rpeConfirmed: true` when the PE box is edited.
+  - `toggleDone` marks `repsAutoFilled: true` when it fills reps from the target range; editing reps clears it.
+  - `changeDaySplit` carries `sessionRpe` and `sleepHours` across and clears maintenance undo data.
+  - `exportBackup` / `importBackup` now call the new versions in `src/spotter-ui.js`.
+  - Markup containers, a 5th nav button, the reusable bottom sheet and the Spotter CSS block (used from M3 on).
+- `src/spotter-ui.js` (first part): state loading through `migrate()`, the bottom sheet, export (Blob download, same `workoutLogs` / `macroGoals` names plus `spotter` and `schemaVersion`), import with validation, a confirm step, a one-step undo copy (`spotter_preimport_snapshot`), "Last backup: N days ago", the 7-day reminder, the storage-failure warning and `navigator.storage.persist()`.
+
+**Tests**
+- No new test files; the migration, backup and storage tests were written in M1 (`tests/migration.test.js`). All 100 pass.
+- Checked in the browser at 393×852: the app loads with no console errors, the day object has the three new fields, and the four `spotter_*` keys are created.
+
+**Decisions made here**
+- Import is blocked while demo mode is on, and a demo export is refused as a real import.
+- If there is no room to store the undo copy, the import is cancelled rather than done without a safety net.
+- A file with zero days is refused (it would erase the logbook).
+- Export file name is now `spotter-backup-YYYY-MM-DD.json`.
+
+**For Imroz to verify**
+- On the phone: the Download Backup button actually saves a file from Safari and from the Home Screen app (the method changed from a `data:` link to a Blob download).
+- That an old backup from the current tracker restores correctly (MANUAL_TESTS.md).
+
+**AI-generated:** all changes in this milestone. The untouched parts of `index.html` are Imroz's original code.

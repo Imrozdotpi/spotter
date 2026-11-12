@@ -515,7 +515,7 @@
       backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr); /* SPOTTER HOOK: 5th tab */
       z-index: 200;
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -576,12 +576,88 @@
       margin-bottom: 4px;
       font-weight: 700;
     }
+
+    /* ==========================================================
+       SPOTTER HOOK: styles for the new Spotter UI.
+       Reuses the colour variables and card/btn classes above.
+       ========================================================== */
+    .sp-hidden { display: none !important; }
+    .sp-btn { min-height: 44px; padding: 10px 14px; }
+    .sp-in { height: 44px; }
+    .sp-left { text-align: left; padding: 0 10px; }
+    .sp-lbl { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; }
+    .sp-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .sp-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sp-chip {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
+      padding: 6px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 800;
+      border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main);
+    }
+    .sp-green { background: var(--accent-dim); border-color: var(--accent); color: #6ee7b7; }
+    .sp-amber { background: rgba(245, 158, 11, 0.16); border-color: var(--legs); color: #fcd34d; }
+    .sp-red { background: rgba(239, 68, 68, 0.16); border-color: var(--push); color: #fca5a5; }
+    .sp-blue { background: rgba(59, 130, 246, 0.16); border-color: var(--pull); color: #93c5fd; }
+    .sp-grey { color: var(--text-muted); }
+    .sp-ready { margin-bottom: 10px; }
+    .sp-ready:empty { display: none; }
+    .sp-note { font-size: 0.76rem; color: var(--text-muted); line-height: 1.45; margin-top: 6px; }
+    .sp-low { font-size: 0.76rem; color: #fcd34d; line-height: 1.45; margin-top: 6px; }
+    .sp-low:empty { display: none; }
+    .sp-kicker { font-size: 0.66rem; font-weight: 900; letter-spacing: 0.9px; text-transform: uppercase; color: var(--accent); }
+    .sp-title { font-weight: 800; font-size: 0.95rem; }
+    .sp-row {
+      display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.82rem;
+    }
+    .sp-row > span:first-child { color: var(--text-muted); }
+    .sp-row > span:last-child { text-align: right; font-weight: 800; }
+    .sp-formula {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px; margin: 10px 0; font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.74rem; line-height: 1.5; white-space: pre-wrap; color: #a7f3d0;
+    }
+    .sp-rpe-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .sp-rpe-btn {
+      min-height: 44px; border-radius: 10px; background: var(--bg-input);
+      border: 1px solid var(--border); color: var(--text-main); font-weight: 800; font-size: 0.92rem;
+    }
+    .sp-rpe-btn.on { background: var(--accent); border-color: var(--accent); color: #042f2e; }
+    .sp-banner {
+      background: var(--legs); color: #1c1300; font-weight: 900; font-size: 0.72rem;
+      letter-spacing: 1px; text-align: center; padding: 5px 8px; border-radius: 8px; margin-bottom: 8px;
+    }
+    .sp-warn {
+      background: rgba(239, 68, 68, 0.16); border: 1px solid var(--push); color: #fca5a5;
+      font-size: 0.76rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px;
+    }
+    .sp-sheet {
+      max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    .sp-sheet p { font-size: 0.84rem; line-height: 1.5; margin: 8px 0; }
+    .sp-sheet li { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); margin: 0 0 6px 18px; }
+    .sp-pipe-box {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; font-size: 0.84rem; font-weight: 800;
+    }
+    .sp-pipe-box small { display: block; color: var(--text-muted); font-weight: 600; font-size: 0.74rem; margin-top: 2px; }
+    .sp-pipe-arrow { text-align: center; color: var(--accent); font-weight: 900; line-height: 1.2; }
+    .sp-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .sp-item-main { flex: 1; min-width: 0; font-size: 0.84rem; font-weight: 700; }
+    .sp-item-main small { display: block; color: var(--text-muted); font-weight: 500; font-size: 0.72rem; margin-top: 2px; }
+    .sp-chart svg { width: 100%; height: auto; display: block; }
+    .sp-brand { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+    .sp-brand strong { font-size: 0.86rem; letter-spacing: 2px; color: var(--accent); font-weight: 900; }
+    .sp-brand span { font-size: 0.7rem; color: var(--text-muted); }
   </style>
 </head>
 <body>
 
   <!-- TOP STICKY BAR: DATE & LIVE TIMERS -->
   <header class="app-header">
+    <!-- SPOTTER HOOK: demo-data banner and storage warning (hidden unless needed) -->
+    <div id="spDemoBanner" class="sp-banner sp-hidden">DEMO DATA · not your real logbook</div>
+    <div id="spStoreWarn" class="sp-warn sp-hidden"></div>
     <div class="header-top">
       <button class="date-trigger-btn" onclick="toggleCalendarDrawer()">
         <span>📅</span>
@@ -636,6 +712,9 @@
         <button class="split-chip" onclick="changeDaySplit('rest')">Rest Day</button>
       </div>
 
+      <!-- SPOTTER HOOK: ACT II Exam-Week Autopilot card (shown only when there is something to say) -->
+      <div id="spAutopilot"></div>
+
       <!-- Daily Performance Summary -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -675,16 +754,24 @@
           <button class="btn btn-green" onclick="openAddExerciseModal()">+ Add Exercise</button>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Duration (Minutes)</label>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Duration (min)</label>
             <input type="number" id="minsInput" class="mob-input" placeholder="0" oninput="saveMins(this.value)" />
           </div>
           <div>
             <label style="font-size:0.72rem; color:var(--text-muted);">Bodyweight (kg)</label>
             <input type="number" step="0.1" id="bwInput" class="mob-input" placeholder="kg" oninput="saveBw(this.value)" />
           </div>
+          <!-- SPOTTER HOOK: last night's sleep -->
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">Sleep last night (h)</label>
+            <input type="number" step="0.5" min="0" max="14" id="spSleepInput" class="mob-input" placeholder="h" oninput="SpotterUI.saveSleep(this.value)" />
+          </div>
         </div>
+
+        <!-- SPOTTER HOOK: session RPE chips (shown once the session has started) -->
+        <div id="spSessionRpe"></div>
 
         <textarea id="notesInput" class="mob-input" style="height:64px; padding:8px; text-align:left; font-size:14px;" placeholder="Notes, PRs, tricep variations, or leg exercises..." oninput="saveNotes(this.value)"></textarea>
       </div>
@@ -694,6 +781,9 @@
          VIEW 2: CALORIES, MACROS & WATER
          ========================================== -->
     <section id="view-nutrition" class="view-section">
+      <!-- SPOTTER HOOK: calm low-intake note (hidden unless flagged) -->
+      <div id="spLowIntake"></div>
+
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-weight:800;">🔥 Daily Calories & Macros</span>
@@ -735,6 +825,32 @@
           <input type="number" id="fFat" class="mob-input" placeholder="Fat (g)" />
         </div>
         <button class="btn btn-green" style="width:100%; padding:10px;" onclick="addCustomFood()">+ Log Meal</button>
+      </div>
+
+      <!-- SPOTTER HOOK: ACT III Protein on a Hostel Budget -->
+      <div class="card" id="spSolverCard">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <span style="font-weight:800;">🥚 Protein on a Hostel Budget</span>
+          <button class="btn btn-dark sp-btn" onclick="SpotterUI.whySolver()">Why?</button>
+        </div>
+        <div class="sp-note" style="margin:2px 0 10px;">Closes your protein gap at the lowest cost.</div>
+        <div class="sp-grid3">
+          <div>
+            <label class="sp-lbl" for="spGap">Protein gap (g)</label>
+            <input type="number" id="spGap" class="mob-input sp-in" oninput="SpotterUI.onGapInput(this.value)" />
+          </div>
+          <div>
+            <label class="sp-lbl" for="spBudget">Budget (₹)</label>
+            <input type="number" id="spBudget" class="mob-input sp-in" placeholder="₹" oninput="SpotterUI.onBudgetInput(this.value)" />
+          </div>
+          <div>
+            <span class="sp-lbl">Calories left</span>
+            <div id="spCalLeft" class="mob-input sp-in" style="display:flex; align-items:center; justify-content:center;">–</div>
+          </div>
+        </div>
+        <div id="spSolverHint" class="sp-note"></div>
+        <button class="btn btn-green sp-btn" style="width:100%; margin-top:10px;" onclick="SpotterUI.runSolver()">Find cheapest combo</button>
+        <div id="spSolverResult"></div>
       </div>
 
       <!-- Logged Meals List -->
@@ -790,7 +906,7 @@
 
       <div class="card">
         <div style="font-weight:800; margin-bottom:8px;">📈 1-Rep Max (e1RM) Calculator</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
           <div>
             <label style="font-size:0.72rem; color:var(--text-muted);">Weight (kg)</label>
             <input type="number" id="rmW" value="80" class="mob-input" oninput="calc1RM()" />
@@ -799,8 +915,14 @@
             <label style="font-size:0.72rem; color:var(--text-muted);">Reps</label>
             <input type="number" id="rmR" value="8" class="mob-input" oninput="calc1RM()" />
           </div>
+          <!-- SPOTTER HOOK: RPE input for the RPE-adjusted estimate -->
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-muted);">RPE (6–10)</label>
+            <input type="number" id="rmP" value="8" step="0.5" min="6" max="10" class="mob-input" oninput="calc1RM()" />
+          </div>
         </div>
-        <div id="rmOut" style="font-size:1.3rem; font-weight:900; color:var(--accent); text-align:center;">Est. 1RM: 101.3 kg</div>
+        <div id="rmOut" style="font-size:1.15rem; font-weight:900; color:var(--accent); text-align:center;">Est. 1RM: 101.3 kg</div>
+        <div class="sp-note" style="text-align:center;">Epley: weight × (1 + reps / 30). RPE-adjusted: weight × (1 + (reps + 10 − RPE) / 30).</div>
       </div>
     </section>
 
@@ -818,14 +940,29 @@
         <div id="prList"></div>
       </div>
 
+      <!-- SPOTTER HOOK: ACT II weekly training load chart -->
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:4px;">📊 Weekly Training Load</div>
+        <div id="spLoadChart" class="sp-chart"></div>
+      </div>
+
       <div class="card">
         <div style="font-weight:800; margin-bottom:8px;">💾 Backup & Restore Data</div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-green" style="flex:1;" onclick="exportBackup()">Download Backup</button>
-          <button class="btn btn-dark" style="flex:1;" onclick="document.getElementById('restoreInput').click()">Restore File</button>
-          <input type="file" id="restoreInput" style="display:none" accept=".json" onchange="importBackup(event)" />
+          <button class="btn btn-green sp-btn" style="flex:1;" onclick="exportBackup()">Download Backup</button>
+          <button class="btn btn-dark sp-btn" style="flex:1;" onclick="document.getElementById('restoreInput').click()">Restore File</button>
+          <input type="file" id="restoreInput" style="display:none" accept=".json,application/json" onchange="importBackup(event)" />
         </div>
+        <!-- SPOTTER HOOK: last-backup line and undo-import button -->
+        <div id="spBackupInfo"></div>
       </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 5 (SPOTTER HOOK): SPOTTER TAB
+         ========================================== -->
+    <section id="view-spotter" class="view-section">
+      <div id="spTab"></div>
     </section>
 
   </div>
@@ -861,16 +998,23 @@
     <div class="modal-sheet">
       <div style="font-weight:800; font-size:1rem; margin-bottom:12px;">⚙️ Daily Calorie & Macro Targets</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div class="form-group"><label>Calories (kcal)</label><input type="number" id="goalCal" class="mob-input" /></div>
+        <div class="form-group"><label>Calories (kcal)</label><input type="number" id="goalCal" class="mob-input" oninput="SpotterUI.floorWarn()" /></div>
         <div class="form-group"><label>Protein (g)</label><input type="number" id="goalPro" class="mob-input" /></div>
         <div class="form-group"><label>Carbs (g)</label><input type="number" id="goalCarb" class="mob-input" /></div>
         <div class="form-group"><label>Fats (g)</label><input type="number" id="goalFat" class="mob-input" /></div>
       </div>
+      <!-- SPOTTER HOOK: gentle warning when the calorie goal is under the floor -->
+      <div id="spFloorWarn" class="sp-low"></div>
       <div style="display:flex; gap:8px; margin-top:14px;">
         <button class="btn btn-dark" style="flex:1; padding:12px;" onclick="closeModals()">Cancel</button>
         <button class="btn btn-green" style="flex:1; padding:12px;" onclick="saveMacroGoals()">Save Goals</button>
       </div>
     </div>
+  </div>
+
+  <!-- SPOTTER HOOK: one reusable bottom sheet for "Why?" panels, confirmations and editors -->
+  <div class="modal-backdrop" id="spModal" onclick="if (event.target === this) closeModals()">
+    <div class="modal-sheet sp-sheet"><div id="spModalBody"></div></div>
   </div>
 
   <!-- FIXED BOTTOM APP BAR -->
@@ -891,7 +1035,16 @@
       <span class="nav-icon">📊</span>
       <span>PRs & Vol</span>
     </button>
+    <!-- SPOTTER HOOK: 5th tab -->
+    <button class="nav-item" id="navSpotter" onclick="switchView('spotter', this)">
+      <span class="nav-icon">🤝</span>
+      <span>Spotter</span>
+    </button>
   </nav>
+
+  <!-- SPOTTER HOOK: logic modules (same folder, no network) -->
+  <script src="./src/spotter-config.js"></script>
+  <script src="./src/spotter-core.js"></script>
 
   <script>
     // ==========================================
@@ -1016,11 +1169,16 @@
     let logs = {};
     let goals = { cal: 2500, pro: 160, carb: 280, fat: 70 };
 
+    // SPOTTER HOOK: every read and write goes through one store. In normal use it reads and
+    // writes KEY_LOGS / KEY_GOALS exactly as before. In demo mode it uses separate
+    // spotter_demo_* keys, so demo data can never touch the real logbook.
+    const SpotterStore = SpotterCore.makeStorage(SafeStore, KEY_LOGS, KEY_GOALS);
+
     try {
-      const rawLogs = SafeStore.get(KEY_LOGS);
-      if (rawLogs) logs = JSON.parse(rawLogs);
-      const rawGoals = SafeStore.get(KEY_GOALS);
-      if (rawGoals) goals = JSON.parse(rawGoals);
+      const storedLogs = SpotterStore.loadLogs();
+      if (storedLogs && typeof storedLogs === "object") logs = storedLogs;
+      const storedGoals = SpotterStore.loadGoals();
+      if (storedGoals && typeof storedGoals === "object") goals = storedGoals;
     } catch (e) {}
 
     const todayObj = new Date();
@@ -1057,7 +1215,8 @@
           targetReps: item.r,
           targetRpe: item.p,
           sets: Array.from({ length: item.s }, () => ({
-            type: "N", weight: "", reps: "", rpe: item.p, done: false
+            type: "N", weight: "", reps: "", rpe: item.p, done: false,
+            rpeConfirmed: false // SPOTTER HOOK: this RPE is a pre-filled target, not typed by the user
           }))
         }))
       };
@@ -1072,15 +1231,19 @@
       if (!d.supplements) d.supplements = [];
       if (typeof d.waterMl !== "number") d.waterMl = 0;
       if (!d.exercises) d.exercises = [];
+      // SPOTTER HOOK: new optional fields, added lazily. Old days work without them.
+      if (d.sessionRpe === undefined) d.sessionRpe = null;
+      if (d.sleepHours === undefined) d.sleepHours = null;
+      if (!d.spotter || typeof d.spotter !== "object") d.spotter = {};
       return d;
     }
 
     function saveAll() {
-      SafeStore.set(KEY_LOGS, JSON.stringify(logs));
-      SafeStore.set(KEY_GOALS, JSON.stringify(goals));
+      SpotterStore.saveLogsGoals(logs, goals); // SPOTTER HOOK: same keys and content as before, unless demo mode is on
       renderCalendar();
       updateSummaryStrip();
       renderNutrition();
+      if (window.SpotterUI) SpotterUI.refresh(); // SPOTTER HOOK
     }
 
     // ==========================================
@@ -1150,6 +1313,7 @@
     function selectDate(dateKey) {
       activeDate = dateKey;
       ensureDay(activeDate);
+      if (window.SpotterUI) SpotterUI.onDateChange(); // SPOTTER HOOK
 
       const [y, m, d] = activeDate.split("-").map(Number);
       const dt = new Date(y, m - 1, d);
@@ -1174,6 +1338,7 @@
       } else if (viewName === "stats") {
         renderStatsView();
       }
+      if (window.SpotterUI) SpotterUI.onViewChange(viewName); // SPOTTER HOOK
     }
 
     // ==========================================
@@ -1201,7 +1366,8 @@
       const ghost = getGhostBest(ex.name);
       if (!ghost) return;
       ex.sets = ghost.sets.map(s => ({
-        type: s.type || "N", weight: s.weight, reps: s.reps, rpe: s.rpe || ex.targetRpe, done: false
+        type: s.type || "N", weight: s.weight, reps: s.reps, rpe: s.rpe || ex.targetRpe, done: false,
+        rpeConfirmed: false // SPOTTER HOOK: a copied RPE is not a felt RPE
       }));
       saveAll();
       renderWorkout();
@@ -1216,6 +1382,11 @@
       fresh.supplements = cur.supplements;
       fresh.foods = cur.foods;
       fresh.notes = cur.notes;
+      // SPOTTER HOOK: keep the day's Spotter inputs. Maintenance undo data is dropped
+      // on purpose, because the exercises it refers to are replaced here.
+      fresh.sessionRpe = cur.sessionRpe === undefined ? null : cur.sessionRpe;
+      fresh.sleepHours = cur.sleepHours === undefined ? null : cur.sleepHours;
+      fresh.spotter = {};
       logs[activeDate] = fresh;
       saveAll();
       renderWorkout();
@@ -1245,6 +1416,7 @@
           <p style="font-size:0.82rem; color:var(--text-muted); margin-top:6px;">Switch to the <strong>Calories</strong> tab below to hit your protein & hydration goals!</p>
         </div>`;
         updateSummaryStrip();
+        if (window.SpotterUI) SpotterUI.renderWorkoutExtras(); // SPOTTER HOOK
         return;
       }
 
@@ -1288,6 +1460,7 @@
             <span>👻 Last Best: <strong>${ghost.weight}kg × ${ghost.reps}</strong></span>
             <button class="btn btn-dark" style="padding:3px 8px; font-size:0.7rem;" onclick="copyGhostSets(${exIdx})">Copy Weights</button>
           </div>` : ""}
+          <div class="sp-ready" id="spReady-${exIdx}"></div><!-- SPOTTER HOOK: ACT I readiness chip -->
 
           <div class="set-header-grid">
             <div>Set</div><div>kg</div><div>Reps</div><div>PE</div><div>✓</div><div></div>
@@ -1302,6 +1475,7 @@
       });
 
       updateSummaryStrip();
+      if (window.SpotterUI) SpotterUI.renderWorkoutExtras(); // SPOTTER HOOK
     }
 
     function cycleType(exIdx, sIdx) {
@@ -1313,7 +1487,11 @@
     }
 
     function editSet(exIdx, sIdx, field, val) {
-      logs[activeDate].exercises[exIdx].sets[sIdx][field] = val;
+      const s = logs[activeDate].exercises[exIdx].sets[sIdx];
+      s[field] = val;
+      // SPOTTER HOOK: remember that this RPE / these reps were typed by the user
+      if (field === "rpe") s.rpeConfirmed = true;
+      if (field === "reps") delete s.repsAutoFilled;
       saveAll();
     }
 
@@ -1323,7 +1501,10 @@
       s.done = checked;
       if (checked && !s.reps) {
         const m = String(ex.targetReps).match(/\d+/);
-        if (m) s.reps = m[0];
+        if (m) {
+          s.reps = m[0];
+          s.repsAutoFilled = true; // SPOTTER HOOK: these reps were filled in by the app, not typed
+        }
       }
       if (checked) startRestTimer(90);
       saveAll();
@@ -1338,7 +1519,7 @@
     function addSet(exIdx) {
       const ex = logs[activeDate].exercises[exIdx];
       const prev = ex.sets[ex.sets.length - 1] || { weight: "", reps: "", rpe: ex.targetRpe };
-      ex.sets.push({ type: "N", weight: prev.weight, reps: prev.reps, rpe: prev.rpe, done: false });
+      ex.sets.push({ type: "N", weight: prev.weight, reps: prev.reps, rpe: prev.rpe, done: false, rpeConfirmed: false }); // SPOTTER HOOK: copied RPE is unconfirmed
       saveAll();
       renderWorkout();
     }
@@ -1394,10 +1575,10 @@
       const n = document.getElementById("newExName").value.trim() || "Custom Exercise";
       logs[activeDate].exercises.push({
         muscle: m, name: n, targetReps: "8-12", targetRpe: "8.5",
-        sets: [
-          { type: "N", weight: "", reps: "", rpe: "8.5", done: false },
-          { type: "N", weight: "", reps: "", rpe: "8.5", done: false },
-          { type: "N", weight: "", reps: "", rpe: "8.5", done: false }
+        sets: [ // SPOTTER HOOK: rpeConfirmed false = pre-filled RPE
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false, rpeConfirmed: false },
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false, rpeConfirmed: false },
+          { type: "N", weight: "", reps: "", rpe: "8.5", done: false, rpeConfirmed: false }
         ]
       });
       closeModals();
@@ -1411,6 +1592,7 @@
       document.getElementById("goalCarb").value = goals.carb;
       document.getElementById("goalFat").value = goals.fat;
       document.getElementById("macroModal").classList.add("open");
+      if (window.SpotterUI) SpotterUI.floorWarn(); // SPOTTER HOOK
     }
 
     function saveMacroGoals() {
@@ -1587,7 +1769,14 @@
       const w = parseFloat(document.getElementById("rmW").value) || 0;
       const r = parseFloat(document.getElementById("rmR").value) || 1;
       const rm = r === 1 ? w : w * (1 + r / 30);
-      document.getElementById("rmOut").textContent = `Est. 1RM: ${rm.toFixed(1)} kg`;
+      // SPOTTER HOOK: show the RPE-adjusted estimate next to plain Epley (numbers only, no user text)
+      const p = parseFloat(document.getElementById("rmP").value);
+      const inRange = p >= 6 && p <= 10 && r >= 1 && r <= 12 && w > 0;
+      const adj = inRange
+        ? `RPE-adjusted e1RM: ${SpotterCore.e1rm(w, r, p).toFixed(1)} kg`
+        : "RPE-adjusted e1RM needs RPE 6–10 and 1–12 reps";
+      document.getElementById("rmOut").innerHTML =
+        `Est. 1RM (Epley): ${rm.toFixed(1)} kg<div style="font-size:0.95rem; color:#7dd3fc; margin-top:4px;">${adj}</div>`;
     }
 
     function renderStatsView() {
@@ -1633,35 +1822,18 @@
       `).join("") : `<div style="font-size:0.8rem; color:var(--text-muted);">Log and tick sets to see your PRs!</div>`;
     }
 
-    function exportBackup() {
-      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ workoutLogs: logs, macroGoals: goals }));
-      const a = document.createElement("a");
-      a.href = str;
-      a.download = `ppl-mobile-backup-${activeDate}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function importBackup(e) {
-      const f = e.target.files[0];
-      if (!f) return;
-      const r = new FileReader();
-      r.onload = ev => {
-        try {
-          const d = JSON.parse(ev.target.result);
-          logs = d.workoutLogs || d;
-          if (d.macroGoals) goals = d.macroGoals;
-          saveAll();
-          selectDate(activeDate);
-        } catch (err) {}
-      };
-      r.readAsText(f);
-    }
+    // SPOTTER HOOK: backup and restore now live in src/spotter-ui.js.
+    // Export keeps the same two top-level names (workoutLogs, macroGoals) and adds Spotter data.
+    // Import validates the file, asks before overwriting, and keeps a one-step undo copy.
+    function exportBackup() { SpotterUI.exportBackup(); }
+    function importBackup(e) { SpotterUI.importBackup(e); }
 
     // Boot App
     initQuickFoods();
     selectDate(activeDate);
   </script>
+
+  <!-- SPOTTER HOOK: UI module (must load after the app script above) -->
+  <script src="./src/spotter-ui.js"></script>
 </body>
 </html>

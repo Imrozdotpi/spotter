@@ -1,0 +1,41 @@
+{
+  "_note": "Hand-computed load fixture. activeDate is 2026-03-01. Every expected number below can be checked with a calculator.",
+  "activeDate": "2026-03-01",
+  "logs": {
+    "2026-01-26": { "sessionRpe": 6, "durationMinutes": 60 },
+    "2026-01-28": { "sessionRpe": 7, "durationMinutes": 50 },
+    "2026-01-30": { "sessionRpe": 6, "durationMinutes": 45 },
+    "2026-02-02": { "sessionRpe": 7, "durationMinutes": 60 },
+    "2026-02-04": { "sessionRpe": 7, "durationMinutes": 60 },
+    "2026-02-06": { "sessionRpe": 8, "durationMinutes": 40 },
+    "2026-02-10": { "sessionRpe": null, "durationMinutes": 60 },
+    "2026-02-12": { "sessionRpe": 7, "durationMinutes": 0 },
+    "2026-02-16": { "sessionRpe": 6, "durationMinutes": 70 },
+    "2026-02-19": { "sessionRpe": 8, "durationMinutes": 55 },
+    "2026-02-21": { "sessionRpe": 7, "durationMinutes": 60 },
+    "2026-02-23": { "sessionRpe": 8, "durationMinutes": 60 },
+    "2026-02-25": { "sessionRpe": 9, "durationMinutes": 70 },
+    "2026-02-27": { "sessionRpe": 8, "durationMinutes": 50 },
+    "2026-03-01": { "sessionRpe": 7, "durationMinutes": 30 }
+  },
+  "expected": {
+    "dailyLoads": {
+      "2026-01-26": 360, "2026-01-28": 350, "2026-01-30": 270,
+      "2026-02-02": 420, "2026-02-04": 420, "2026-02-06": 320,
+      "2026-02-10": null, "2026-02-12": null,
+      "2026-02-16": 420, "2026-02-19": 440, "2026-02-21": 420,
+      "2026-02-23": 480, "2026-02-25": 630, "2026-02-27": 400, "2026-03-01": 210
+    },
+    "weeks": [
+      { "label": "week -1", "start": "2026-02-16", "end": "2026-02-22", "load": 1280, "hasData": true },
+      { "label": "week -2", "start": "2026-02-09", "end": "2026-02-15", "load": 0, "hasData": false },
+      { "label": "week -3", "start": "2026-02-02", "end": "2026-02-08", "load": 1160, "hasData": true },
+      { "label": "week -4", "start": "2026-01-26", "end": "2026-02-01", "load": 980, "hasData": true }
+    ],
+    "acute": 1720,
+    "weeksWithData": 3,
+    "chronic": 1140,
+    "ratio": 1.5088,
+    "band": "Big spike vs your usual"
+  }
+}

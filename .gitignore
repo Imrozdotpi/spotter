@@ -1,0 +1,5 @@
+# personal backup files are never committed
+my-backup.json
+*-backup-*.json
+node_modules/
+.claude/

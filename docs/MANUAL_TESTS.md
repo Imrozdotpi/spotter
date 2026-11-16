@@ -61,7 +61,7 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 
 ## 6. ACT I: readiness (in demo mode)
 
-- [ ] Turn demo mode on. Workout tab, first exercise. Expected: a green chip **Go for a PR · 8 sessions · Why?** with a green dot (the session count can differ).
+- [ ] Turn demo mode on. Workout tab shows **Push 1** with every set filled in and nothing ticked. Tick the first-row **Done** box of Flat Bench Press. Expected: a green chip **Go for a PR · 8 sessions · Why?** with a green dot (the session count can differ).
 - [ ] Tick the first set of the second exercise. Expected: amber **Normal day**.
 - [ ] Tick the first set of the third exercise. Expected: red **Drop a set**.
 - [ ] Tap a chip. Expected: a sheet with today's set, today's e1RM, predicted e1RM, difference in %, sessions used, the formula, and the list of sessions in the trend.

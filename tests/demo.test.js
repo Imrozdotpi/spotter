@@ -52,7 +52,10 @@ for (const date of WEEK) {
   test(`demo shows all three Acts when opened on ${date}`, () => {
     const g = Demo.generate(date, SPLITS, STAPLES);
     const today = g.logs[date];
-    assert.notEqual(today.split, "rest");
+    assert.equal(today.split, "push1", "the demo day is always Push 1");
+    assert.deepEqual(today.exercises.slice(0, 3).map(e => e.name), ["Flat Bench Press", "Incline Dumbbell Press", "Cable Chest Flyes"]);
+    // every set arrives prefilled and unticked, so the day is shown by just ticking boxes
+    assert.ok(today.exercises.every(e => e.sets.every(x => !x.done && +x.weight > 0 && +x.reps > 0 && +x.rpe >= 6)));
 
     // ACT II: exam week, load climbing, short sleep -> strong maintenance suggestion
     const a = C.autopilot(g.logs, g.exams, date);
@@ -73,7 +76,6 @@ for (const date of WEEK) {
       return r.verdict.chip;
     });
     assert.deepEqual(verdicts, ["Go for a PR", "Normal day", "Drop a set"]);
-    assert.equal(today.exercises[0].sets[0].done, true); // one verdict is visible straight away
 
     // ACT III: the poster case
     const info = C.nutritionGap(g.goals, today, g.settings.calorieFloor);
@@ -198,4 +200,31 @@ test("today's chosen sets stay inside each exercise's own target rep range", () 
       }
     }
   }
+});
+
+test("every split can be prefilled: all sets have kg, reps and PE, nothing is ticked; rest gives no exercises", () => {
+  const date = "2026-11-17";
+  const g = Demo.generate(date, SPLITS, STAPLES, undefined, { clean: true });
+  for (const split of ["push1", "pull1", "legs1", "push2", "pull2", "legs2"]) {
+    const exs = Demo.todayExercises(g.logs, date, split, SPLITS);
+    assert.ok(exs.length >= 4, split + " has exercises");
+    for (const e of exs) {
+      assert.ok(e.sets.length >= 3, split + " " + e.name);
+      for (const x of e.sets) {
+        assert.ok(+x.weight > 0 && +x.reps > 0 && +x.rpe >= 6 && x.done === false, split + " " + e.name + " " + JSON.stringify(x));
+      }
+    }
+  }
+  assert.deepEqual(Demo.todayExercises(g.logs, date, "rest", SPLITS), []);
+});
+
+test("prefilling does not depend on today's day already existing in the logs, and does not change the history", () => {
+  const date = "2026-11-17";
+  const g = Demo.generate(date, SPLITS, STAPLES, undefined, { clean: true });
+  const before = JSON.stringify(g.logs);
+  const a = Demo.todayExercises(g.logs, date, "push1", SPLITS);
+  const withoutToday = JSON.parse(before); delete withoutToday[date];
+  const b = Demo.todayExercises(withoutToday, date, "push1", SPLITS);
+  assert.deepEqual(a, b);
+  assert.equal(JSON.stringify(g.logs), before, "the logs were not modified");
 });

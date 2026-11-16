@@ -62,7 +62,7 @@ Without links: Spotter tab → bottom → "Turn demo mode on" (same clean versio
 - **Five short notes**, for example "Bench felt heavy today. Slept badly." and "Skipped legs. DBMS lab viva prep." (one missed session).
 - **Exams:** a Discrete Maths quiz three weeks ago (the amber bar in the chart), **DBMS mid-sem in 2 days**, Operating Systems in 4 days.
 - **This week is heavy and the last nights were short**, so Autopilot fires: load 3520 against a 4-week average of 2521 (ratio 1.40, "Load is climbing fast"), sleep average 5.8 h.
-- **Today's lifts** are set up so the first three exercises give the three verdicts: a green "Go for a PR" (already ticked), then "Normal day" and "Drop a set" once you tick them.
+- **Today is always Push 1** (Flat Bench Press first), whatever the weekday. Every set already has kg, reps and PE filled in and **nothing is ticked**, so you show the day by just ticking boxes. Ticking the first-row box of the first three lifts gives "Go for a PR", "Normal day" and "Drop a set" in that order; ticking Pec Deck Flyes (4th) gives a "Low confidence" note. Tapping any split tab (Push 1, Pull 1 …) in demo mode fills that split in the same way, so it never shows an empty card.
 - **Food today:** 1410 kcal and 120 g protein against a 160 g goal, so you are exactly **40 g short with 1090 kcal left**, the poster's example.
 - **Canteen:** your ten quick foods with **illustrative prices** (eggs ₹14, soya ₹12, paneer ₹40 …). I made these up and they are not checked against any real canteen. If you want the result to be your own, type your canteen's real prices in Spotter tab → Canteen catalog before recording (the answer will change), or say the prices are illustrative.
 
@@ -89,17 +89,13 @@ The data is built around today's date, so the exam countdown and the week charts
 
 **Why the order:** it follows the poster (Act I, II, III), then validation and the AI-versus-human point the handbook asks for.
 
-### Which day to record on
-
-The demo is built around today's weekday, so the first lift changes. **Monday, Thursday and Sunday: Flat Bench Press** (the script above). **Wednesday and Saturday: Barbell Squat.** **Tuesday and Friday: Pull-Ups**, whose Why? sheet shows an e1RM of about 15 kg because only the added weight is logged (see LIMITATIONS.md). On those two days, open the Why? sheet on the second lift (Deadlift / Bent-Over Barbell Rows) instead, or record on another day. In every case the first three lifts give Go for a PR, Normal day and Drop a set, and the Autopilot and protein numbers are the same.
-
 ### If you run over 2:00
 
 Cut in this order: the Why? sheet in Act III, the chart beat, then the "Next lift" line in Act I.
 
 ### Things to avoid on camera
 
-- **Don't tap the split chips** (Push 1, Pull 1 …): that replaces the day's exercises.
+- Tapping a split tab is safe in demo mode (it refills the sets), but it unticks anything you ticked. Outside demo mode it still replaces the day with an empty template.
 - **Don't enter Session RPE** during the take. It changes the live ratio from 1.40 to 1.59 and will confuse the narration. If you want to show that it updates live, do it as a separate short clip.
 - Don't open Restore or Backup with real data loaded. In demo mode they are safe, but they add nothing to the story.
 - Don't call the history your own usage. Presentation view hides the label, so the honesty has to come from what you say (one sentence in the intro is enough).

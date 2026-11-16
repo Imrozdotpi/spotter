@@ -834,6 +834,15 @@
     afterDemoSwitch();
   }
 
+  // In demo mode, tapping a split tab on today's date fills that split's sets with prepared values
+  // (kg, reps and PE for every set, nothing ticked), so the day can be shown by just ticking boxes.
+  // Outside demo mode, and on other dates, the tracker's empty template is used as before.
+  function prefillDemoDay(day) {
+    if (!SpotterStore.isDemo() || typeof SpotterDemo === "undefined" || !SpotterDemo.todayExercises) return;
+    if (activeDate !== todayKey() || !day || day.split === "rest") return;
+    day.exercises = SpotterDemo.todayExercises(logs, activeDate, day.split, SPLITS);
+  }
+
   // Turns demo mode on with freshly built data. clean = presentation view (no demo wording, no banner).
   function startDemo(clean) {
     if (typeof SpotterDemo === "undefined") return;
@@ -902,7 +911,7 @@
     setSessionRpe: setSessionRpe, applyMaintenance: applyMaintenance, undoMaintenance: undoMaintenance, whyAutopilot: whyAutopilot,
     logCombo: logCombo, whyLowIntake: whyLowIntake, goSolver: goSolver, goCanteen: goCanteen,
     addExam: addExam, removeExam: removeExam, setFloor: setFloor, setBudget: setBudget, setPrice: setPrice,
-    openItem: openItem, saveItem: saveItem, deleteItem: deleteItem, toggleDemo: toggleDemo, renderLoadChart: renderLoadChart
+    openItem: openItem, saveItem: saveItem, deleteItem: deleteItem, toggleDemo: toggleDemo, renderLoadChart: renderLoadChart, prefillDemoDay: prefillDemoDay
   };
 
   // ------------------------------------------------------------------

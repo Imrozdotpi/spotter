@@ -1243,6 +1243,7 @@
       fresh.sessionRpe = cur.sessionRpe === undefined ? null : cur.sessionRpe;
       fresh.sleepHours = cur.sleepHours === undefined ? null : cur.sleepHours;
       fresh.spotter = {};
+      if (window.SpotterUI) SpotterUI.prefillDemoDay(fresh); // SPOTTER HOOK: in demo mode, tapping a split tab fills the sets in
       logs[activeDate] = fresh;
       saveAll();
       renderWorkout();

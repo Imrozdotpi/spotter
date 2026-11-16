@@ -90,6 +90,55 @@
   ];
   var NOTE_AT = [3, 8, 14, 20];
 
+  // The prepared sets for one day: every set already has kg, reps and PE filled in, and nothing is ticked.
+  // The first three lifts with enough history are set so that ticking their first set gives, in order,
+  // "Go for a PR", "Normal day" and "Drop a set". Later lifts get an ordinary set at the pre-filled target RPE,
+  // left unconfirmed, so ticking one shows the low-confidence note.
+  // Reads only dates before endDate, so it also works when the day already exists in logs.
+  function todayExercises(logs, endDate, split, splits) {
+    var out = [];
+    var targets = [1.6, 0, -1.6]; // z-scores to show: Go for a PR, Normal day, Drop a set
+    var shown = 0;
+    templateFor(split, splits).forEach(function (t) {
+      var base = BASE[C.normName(t.n)] || 20, step = stepFor(base);
+      var w0 = roundTo(base * (1 + 0.012 * 5), step);
+      var first = { type: "N", weight: String(w0), reps: String(lowRep(t.r) + 1), rpe: String(t.p), done: false, rpeConfirmed: false };
+      var ex = { muscle: t.m, name: t.n, targetReps: t.r, targetRpe: t.p, sets: [] };
+
+      // For the first three lifts with enough history, choose a realistic first set that lands on each verdict.
+      // Later lifts get an ordinary set at the pre-filled target RPE, left unconfirmed, to show the low-confidence label.
+      var showcase = shown < targets.length;
+      {
+        var probe = C.readiness(logs, endDate, { name: t.n, sets: [{ type: "N", weight: String(w0), reps: "8", rpe: "8", done: true }] });
+        if (probe.status === "verdict") {
+          var want = showcase ? targets[shown] : 0, bestGap = Infinity, choice = null;
+          var rpes = showcase ? [7.5, 8, 8.5, 9] : [Number(t.p)];
+          // Keep reps inside the exercise's own target range (and the 1-12 range Spotter can read), so the set looks like a real one.
+          var repLo = lowRep(t.r), repHi = Math.min(12, Math.max(repLo, highRep(t.r)));
+          for (var dw = -4; dw <= 4; dw++) {
+            for (var reps = repLo; reps <= repHi; reps++) {
+              for (var ri = 0; ri < rpes.length; ri++) {
+                var rpe3 = rpes[ri], w = w0 + dw * step;
+                var z = (C.e1rm(w, reps, rpe3) - probe.predicted) / probe.s;
+                var ok = want > 0 ? z >= 1.25 : (want < 0 ? z <= -1.25 : Math.abs(z) <= 0.5);
+                var gapTo = Math.abs(z - want) + Math.abs(dw) * 0.05;
+                if (ok && gapTo < bestGap) { bestGap = gapTo; choice = { w: w, reps: reps, rpe: rpe3 }; }
+              }
+            }
+          }
+          if (choice) {
+            first = { type: "N", weight: String(choice.w), reps: String(choice.reps), rpe: String(choice.rpe), done: false, rpeConfirmed: showcase };
+            if (showcase) shown++;
+          }
+        }
+      }
+      ex.sets.push(first);
+      for (var s2 = 1; s2 < t.s; s2++) ex.sets.push({ type: "N", weight: first.weight, reps: first.reps, rpe: String(t.p), done: false, rpeConfirmed: false });
+      out.push(ex);
+    });
+    return out;
+  }
+
   function generate(endDate, splits, staples, seed, opts) {
     var clean = !!(opts && opts.clean);
     var tag = clean ? "" : " (demo)";
@@ -169,8 +218,7 @@
     });
 
     // ----- today -----
-    var todaySplit = SPLIT_BY_WEEKDAY[weekday(end)];
-    if (todaySplit === "rest") todaySplit = "push1"; // the demo always opens on a training day
+    var todaySplit = "push1"; // the demo day is always Push 1 (Flat Bench first), whatever the weekday
     var today = emptyDay(todaySplit);
     today.sleepHours = 6;
     today.waterMl = 1500;
@@ -181,45 +229,7 @@
       if (s) today.foods.push(s);
     });
 
-    var targets = [1.6, 0, -1.6]; // z-scores to show: Go for a PR, Normal day, Drop a set
-    var shown = 0;
-    templateFor(todaySplit, splits).forEach(function (t) {
-      var base = BASE[C.normName(t.n)] || 20, step = stepFor(base);
-      var w0 = roundTo(base * (1 + 0.012 * 5), step);
-      var first = { type: "N", weight: String(w0), reps: String(lowRep(t.r) + 1), rpe: String(t.p), done: false, rpeConfirmed: false };
-      var ex = { muscle: t.m, name: t.n, targetReps: t.r, targetRpe: t.p, sets: [] };
-
-      // For the first three lifts with enough history, choose a realistic first set that lands on each verdict.
-      // Later lifts get an ordinary set at the pre-filled target RPE, left unconfirmed, to show the low-confidence label.
-      var showcase = shown < targets.length;
-      {
-        var probe = C.readiness(logs, endDate, { name: t.n, sets: [{ type: "N", weight: String(w0), reps: "8", rpe: "8", done: true }] });
-        if (probe.status === "verdict") {
-          var want = showcase ? targets[shown] : 0, bestGap = Infinity, choice = null;
-          var rpes = showcase ? [7.5, 8, 8.5, 9] : [Number(t.p)];
-          // Keep reps inside the exercise's own target range (and the 1-12 range Spotter can read), so the set looks like a real one.
-          var repLo = lowRep(t.r), repHi = Math.min(12, Math.max(repLo, highRep(t.r)));
-          for (var dw = -4; dw <= 4; dw++) {
-            for (var reps = repLo; reps <= repHi; reps++) {
-              for (var ri = 0; ri < rpes.length; ri++) {
-                var rpe3 = rpes[ri], w = w0 + dw * step;
-                var z = (C.e1rm(w, reps, rpe3) - probe.predicted) / probe.s;
-                var ok = want > 0 ? z >= 1.25 : (want < 0 ? z <= -1.25 : Math.abs(z) <= 0.5);
-                var gapTo = Math.abs(z - want) + Math.abs(dw) * 0.05;
-                if (ok && gapTo < bestGap) { bestGap = gapTo; choice = { w: w, reps: reps, rpe: rpe3 }; }
-              }
-            }
-          }
-          if (choice) {
-            first = { type: "N", weight: String(choice.w), reps: String(choice.reps), rpe: String(choice.rpe), done: showcase && shown === 0, rpeConfirmed: showcase };
-            if (showcase) shown++;
-          }
-        }
-      }
-      ex.sets.push(first);
-      for (var s2 = 1; s2 < t.s; s2++) ex.sets.push({ type: "N", weight: first.weight, reps: first.reps, rpe: String(t.p), done: false, rpeConfirmed: false });
-      today.exercises.push(ex);
-    });
+    today.exercises = todayExercises(logs, endDate, todaySplit, splits);
     logs[endDate] = today;
 
     // ----- everything else -----
@@ -242,5 +252,5 @@
     };
   }
 
-  return { generate: generate, SAMPLE_PRICES: SAMPLE_PRICES, DAYS: DAYS };
+  return { generate: generate, todayExercises: todayExercises, SAMPLE_PRICES: SAMPLE_PRICES, DAYS: DAYS };
 });

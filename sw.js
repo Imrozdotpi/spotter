@@ -10,7 +10,7 @@
  * WHEN YOU CHANGE ANY FILE LISTED BELOW, RAISE THE VERSION NUMBER.
  * That makes phones drop the old saved copies and fetch the new ones.
  */
-const VERSION = "spotter-v3";
+const VERSION = "spotter-v4";
 
 const ASSETS = [
   "./",

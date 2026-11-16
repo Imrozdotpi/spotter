@@ -295,3 +295,19 @@ Imroz still saw the amber "Demo data. Not your real logbook." bar. Cause: the br
 **Still true:** the data is synthetic. With the label gone, say so on camera and on the slides (see DEMO_SCRIPT.md section 2).
 
 **AI-generated:** all of the above.
+
+## Demo day is Push 1, fully prefilled and unticked
+
+Imroz wanted to record by only ticking boxes on the Push 1 tab, with no spoken narration. Tapping the Push 1 / Pull 1 tab in the demo had produced an empty template card (the tracker resets the day on a split tap).
+
+**Changed**
+- `src/spotter-demo.js`: the prepared sets moved into `todayExercises(logs, endDate, split, splits)`. The demo day is now always Push 1 (it was the weekday's split). Every set has kg, reps and PE, and **nothing is pre-ticked** (before, the first lift's first set was ticked).
+- `src/spotter-ui.js` and one marked hook in `changeDaySplit` in `index.html`: in demo mode, on today's date, tapping a split tab fills that split's sets the same way instead of loading an empty template. Outside demo mode and on other dates nothing changed.
+- `tests/demo.test.js`: the day is Push 1 with Flat Bench, Incline Dumbbell Press, Cable Chest Flyes first; all sets filled and unticked; every split can be prefilled; prefilling does not change the history. 118 tests pass.
+- `sw.js` is now `spotter-v4`. `docs/DEMO_SCRIPT.md` and `docs/MANUAL_TESTS.md` updated; the "which weekday to record on" section was removed because it no longer applies.
+
+**Checked** (headless Chrome, real clicks): tapping Pull 1 then Push 1 gives filled, unticked sets each time; apply and undo maintenance mode; ticking the first rows gives Go for a PR / Normal day / Drop a set; the Why? sheet; the low-confidence note and its confirm button; find and log the combo (protein 170 of 160); load chart; Spotter brief. No errors.
+
+**Note:** the Pull-Ups e1RM oddity in LIMITATIONS.md is still true but no longer appears in the default demo day.
+
+**AI-generated:** all of the above.

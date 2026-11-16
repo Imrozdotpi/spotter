@@ -238,7 +238,7 @@
         { label: "Operating Systems" + tag, date: C.dayNumToKey(end + 4) }
       ]),
       canteen: canteen,
-      settings: { calorieFloor: C.CONFIG.CALORIE_FLOOR_DEFAULT, lastBudget: 60, lastBackupAt: null, demoDate: endDate, presentation: clean }
+      settings: { calorieFloor: C.CONFIG.CALORIE_FLOOR_DEFAULT, lastBudget: 60, lastBackupAt: null, demoDate: endDate, presentation: clean, labelled: !clean }
     };
   }
 

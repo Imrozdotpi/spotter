@@ -35,7 +35,7 @@ Press F12, click the device-toolbar icon (or Ctrl+Shift+M), choose a phone size 
 
 **Option C, hosted.** If you have already deployed to GitHub Pages: `https://<your-username>.github.io/<repo>/?demo=present`.
 
-**Option D, no server.** Double-click `index.html`. The page opens and demo mode works (checked in Chrome). Offline caching is off, which doesn't matter for a recording. Then use the Spotter tab to turn demo mode on, since `?demo=` needs an address you can edit. (That route shows the amber demo label; `?demo=present` hides it.)
+**Option D, no server.** Double-click `index.html`. The page opens and demo mode works (checked in Chrome). Offline caching is off, which doesn't matter for a recording. Then use the Spotter tab to turn demo mode on, since `?demo=` needs an address you can edit.
 
 ## 2. The history (already built in)
 
@@ -46,11 +46,12 @@ You don't need to add anything. **Demo mode** creates a month of believable hist
 | Link ending | Effect |
 |---|---|
 | `?demo=present` | **Use this for recording.** Rebuilds the history and hides every "demo" and "sample" label: no amber bar, no "(demo)" in exam names, no demo card or notes in the Spotter and Stats tabs. Checked by scanning the visible text of all five tabs. |
-| `?demo=reset` | Rebuild the history with the amber "Demo data. Not your real logbook." bar shown |
-| `?demo=1` | Turn demo on (labelled), keeping any changes you made |
+| `?demo=reset` | Same as `?demo=present` |
+| `?demo=1` | Turn demo on if it is off, keeping any changes you made |
+| `?demo=labelled` | The only way to get the amber "Demo data. Not your real logbook." bar and "(demo)" in exam names, if you ever want them back |
 | `?demo=off` | Back to your real data. **In presentation view this is the only way out**, because the on/off card is hidden. |
 
-Without links: Spotter tab → bottom → "Turn demo mode on" (labelled version).
+Without links: Spotter tab → bottom → "Turn demo mode on" (same clean version). If your browser still holds demo data from an older version, a normal page load rebuilds it clean.
 
 **Say that it is synthetic.** Presentation view only removes the on-screen label. The data is still generated, and judges score honesty (Responsible AI, and Q&A). Don't describe it as your own usage; one sentence such as "this is a month of synthetic data I generated for the demo" is enough, and it is in the script below.
 

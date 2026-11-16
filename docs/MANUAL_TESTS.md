@@ -55,9 +55,9 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 
 ## 5. Demo mode
 
-- [ ] Spotter tab → **Turn demo mode on**. Expected: an amber **Demo data. Not your real logbook.** bar on every tab. (For recording, open the app with `?demo=present` instead: no bar, and nothing on screen says demo or sample.)
+- [ ] Spotter tab → **Turn demo mode on** (or open the app with `?demo=present`). Expected: no amber bar, and nothing on screen says demo or sample. (`?demo=labelled` shows the amber **Demo data. Not your real logbook.** bar.)
 - [ ] Workout tab. Expected: an "Exam-Week Autopilot" card at the top, about a month of history (35 days) in the calendar.
-- [ ] Spotter tab → **Turn demo mode off**. Expected: the amber bar is gone and **your own data is exactly as you left it**. (After `?demo=present`, use `?demo=off`; the on/off card is hidden in that view.) Check a date you know.
+- [ ] Open the app with `?demo=off` (the on/off card is hidden while demo data is clean). Expected: **your own data is exactly as you left it**. Check a date you know.
 
 ## 6. ACT I: readiness (in demo mode)
 

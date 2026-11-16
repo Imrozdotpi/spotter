@@ -280,3 +280,18 @@ Requested by Imroz: feed one month of realistic data and remove the "sample data
 **Honesty note for Imroz.** This is the owner's own demo and the request was to remove the on-screen label. The label exists so synthetic data is never mistaken for real use, so the guide now tells you to say it is synthetic in the video and slides. The canteen prices are illustrative and unverified.
 
 **AI-generated:** all of the above.
+
+## Demo banner removed by default
+
+Imroz still saw the amber "Demo data. Not your real logbook." bar. Cause: the browser held demo data saved earlier as labelled (from `?demo=reset`, `?demo=1` or the Spotter-tab switch), and a plain reload keeps it.
+
+**Changed** (`src/spotter-ui.js`, `src/spotter-demo.js`)
+- The bar now appears only for `?demo=labelled` (setting `labelled: true`). Every other way of starting demo mode (the Spotter-tab switch, `?demo=1`, `?demo=reset`, `?demo=present`) builds the clean version.
+- Demo data saved by an older version (no `presentation` or `labelled` flag) is rebuilt clean on the next normal page load, as is any demo data from a previous day.
+- `docs/DEMO_SCRIPT.md`, `docs/MANUAL_TESTS.md` and `README.md` updated.
+
+**Checks** (headless Chrome, one persistent profile): `?demo=labelled` shows the bar and "(demo)" exam names; a hand-written older labelled state, opened with a plain address, came back clean with no bar and clean exam names and stayed that way on a second reload; `?demo=reset` clean; `?demo=off` back to real data. `npm test`: 116 pass.
+
+**Still true:** the data is synthetic. With the label gone, say so on camera and on the slides (see DEMO_SCRIPT.md section 2).
+
+**AI-generated:** all of the above.

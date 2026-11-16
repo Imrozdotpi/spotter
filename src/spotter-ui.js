@@ -208,8 +208,8 @@
   }
 
   function renderBanners() {
-    // The demo label is hidden only in presentation view (?demo=present), for screen recordings.
-    $("spDemoBanner").classList.toggle("sp-hidden", !SpotterStore.isDemo() || !!state.settings.presentation);
+    // The amber demo bar is shown only when labelled demo data was asked for explicitly (?demo=labelled).
+    $("spDemoBanner").classList.toggle("sp-hidden", !(SpotterStore.isDemo() && state.settings.labelled === true));
     var warn = $("spStoreWarn");
     if (SpotterStore.writeFailed()) {
       warn.textContent = "Could not save to this phone's storage. Download a backup now so nothing is lost.";
@@ -819,15 +819,18 @@
   // Demo data is built around "today". If demo mode was left on overnight, rebuild it for the new day.
   function refreshStaleDemo() {
     if (!SpotterStore.isDemo() || typeof SpotterDemo === "undefined") return;
-    if (state.settings.demoDate === todayKey()) return;
-    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES, undefined, { clean: !!state.settings.presentation }));
+    var s = state.settings;
+    // Up to date, and either clean or explicitly labelled: keep it. Anything else (a new day, or demo data
+    // saved by an older version that always carried the label) is rebuilt, clean unless labelled was asked for.
+    if (s.demoDate === todayKey() && (s.presentation === true || s.labelled === true)) return;
+    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES, undefined, { clean: s.labelled !== true }));
     reloadFromStorage();
   }
 
   function toggleDemo() {
     if (SpotterStore.isDemo()) SpotterStore.exitDemo();
     else if (typeof SpotterDemo === "undefined") return;
-    else SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
+    else SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES, undefined, { clean: true }));
     afterDemoSwitch();
   }
 
@@ -925,9 +928,10 @@
   }
 
   // Shortcuts for screen recordings, added to the end of the address:
-  //   ?demo=present  rebuild the demo data and hide every "demo" / "sample" label (presentation view)
-  //   ?demo=reset    rebuild the demo data, with the demo label shown
-  //   ?demo=1        turn demo mode on, keeping any changes made
+  //   ?demo=present  (same as reset) rebuild the demo data with no "demo" / "sample" wording and no banner
+  //   ?demo=reset    rebuild the demo data, clean
+  //   ?demo=1        turn demo mode on if it is off, keeping any changes made
+  //   ?demo=labelled rebuild the demo data with the amber "Demo data" bar and "(demo)" labels
   //   ?demo=off      back to the real logbook
   // Demo mode only ever uses the separate spotter_demo_* keys, so this cannot touch the real logbook.
   // The demo parameter (only) is removed from the address afterwards so a reload does not repeat it.
@@ -937,9 +941,9 @@
     if (!q) return;
     var on = SpotterStore.isDemo();
     if (q === "off") { if (on) toggleDemo(); }
-    else if (q === "present") startDemo(true);
-    else if (q === "reset") startDemo(false);
-    else if (q === "1" || q === "on") { if (!on) startDemo(false); }
+    else if (q === "present" || q === "reset") startDemo(true);
+    else if (q === "labelled" || q === "labeled") startDemo(false);
+    else if (q === "1" || q === "on") { if (!on) startDemo(true); }
     try {
       params.delete("demo");
       var rest = params.toString();

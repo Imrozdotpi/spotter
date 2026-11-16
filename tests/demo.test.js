@@ -26,12 +26,13 @@ test("demo data is deterministic: same date and seed give identical data", () =>
   assert.notDeepEqual(Demo.generate("2026-11-12", SPLITS, STAPLES, 7).logs, a.logs);
 });
 
-test("demo data covers exactly 6 weeks ending on the given day and is labelled", () => {
+test("demo data covers exactly 5 weeks (35 days, about a month) ending on the given day and is labelled", () => {
   const g = Demo.generate("2026-11-12", SPLITS, STAPLES);
   const keys = Object.keys(g.logs).sort();
-  assert.equal(keys.length, 42);
-  assert.equal(keys[0], "2026-10-02");
-  assert.equal(keys[41], "2026-11-12");
+  assert.equal(keys.length, 35);
+  assert.equal(keys[0], C.addDays("2026-11-12", -34));
+  assert.equal(keys[34], "2026-11-12");
+  assert.equal(g.settings.presentation, false);
   assert.equal(g.demo, true);
   assert.ok(g.exams.every(e => e.label.includes("(demo)")));
   assert.equal(g.settings.demoDate, "2026-11-12");
@@ -106,7 +107,7 @@ test("turning demo mode on and off with real demo data leaves the real keys byte
 
   // Use the demo the way the app does: load, migrate, edit, save.
   const logs = st.loadLogs();
-  assert.equal(Object.keys(logs).length, 42);
+  assert.equal(Object.keys(logs).length, 35);
   assert.ok(!("2026-11-10" in logs) || logs["2026-11-10"].notes !== "real");
   const state = C.migrate(st.loadSpotter(), STAPLES);
   assert.equal(state.settings.lastBudget, 60);
@@ -136,4 +137,65 @@ test("a demo export is marked and refused on import", () => {
   const file = JSON.parse(JSON.stringify(C.buildExport(g.logs, g.goals, g, "2026-11-12T10:00:00.000Z", true)));
   assert.equal(file.demo, true);
   assert.equal(C.validateBackup(file, STAPLES).ok, false);
+});
+
+// ---------------- presentation view (no demo wording) and realism ----------------
+
+test("clean (presentation) data is identical apart from labels and the presentation flag", () => {
+  const a = Demo.generate("2026-11-12", SPLITS, STAPLES);
+  const b = Demo.generate("2026-11-12", SPLITS, STAPLES, undefined, { clean: true });
+  assert.deepEqual(a.logs, b.logs);
+  assert.deepEqual(a.canteen, b.canteen);
+  assert.deepEqual(a.goals, b.goals);
+  assert.equal(b.settings.presentation, true);
+  assert.equal(b.demo, true, "still stored as demo data, in the demo keys only");
+  assert.deepEqual(b.exams.map(e => e.label), ["Discrete Maths quiz", "DBMS mid-sem", "Operating Systems"]);
+  assert.ok(a.exams.every(e => e.label.endsWith("(demo)")));
+});
+
+test("clean data contains no demo or sample wording anywhere a user can see it", () => {
+  const b = Demo.generate("2026-11-12", SPLITS, STAPLES, undefined, { clean: true });
+  const visible = JSON.stringify({ logs: b.logs, exams: b.exams, canteen: b.canteen.map(i => i.name) });
+  assert.ok(!/demo|sample|fake|synthetic/i.test(visible), visible.match(/.{20}(demo|sample|fake|synthetic).{20}/i));
+});
+
+test("history looks like a real month: meals above the floor, notes, one missed session, weekly weigh-ins", () => {
+  const g = Demo.generate("2026-11-12", SPLITS, STAPLES);
+  const past = Object.keys(g.logs).sort().slice(0, 34).map(k => [k, g.logs[k]]);
+  for (const [k, d] of past) {
+    const t = C.dayTotals(d);
+    assert.ok(t.count >= 3 && t.count <= 6, k + " foods " + t.count);
+    assert.ok(t.cal >= 1550 && t.cal <= 2700, k + " kcal " + t.cal);
+    assert.ok(t.pro >= 60 && t.pro <= 150, k + " protein " + t.pro);
+    assert.ok(d.sleepHours >= 5 && d.sleepHours <= 9, k + " sleep");
+  }
+  assert.equal(past.filter(([, d]) => d.notes.length).length, 5, "four session notes plus the missed-session note");
+  const missed = past.filter(([, d]) => /Skipped legs/.test(d.notes));
+  assert.equal(missed.length, 1);
+  assert.equal(missed[0][1].exercises.length, 0);
+  assert.equal(missed[0][1].durationMinutes, 0);
+  const weighed = past.filter(([, d]) => d.bodyweight !== "");
+  assert.equal(weighed.length, 5, "one weigh-in per Monday");
+  assert.ok(weighed.every(([, d]) => +d.bodyweight >= 71.5 && +d.bodyweight <= 73.2));
+  const sessions = past.filter(([, d]) => d.exercises.length);
+  assert.ok(sessions.length >= 27 && sessions.length <= 29, "sessions " + sessions.length); // six-day split, about 29 in 34 days, minus the one missed
+  for (const [k, d] of sessions) {
+    assert.ok(d.durationMinutes >= 30 && d.durationMinutes <= 90, k + " minutes " + d.durationMinutes);
+    assert.ok(d.sessionRpe >= 6 && d.sessionRpe <= 9, k + " session RPE");
+  }
+});
+
+test("today's chosen sets stay inside each exercise's own target rep range", () => {
+  for (const date of WEEK) {
+    const g = Demo.generate(date, SPLITS, STAPLES);
+    for (const ex of g.logs[date].exercises) {
+      const nums = String(ex.targetReps).match(/\d+/g).map(Number);
+      const lo = nums[0], hi = Math.max(...nums);
+      const first = ex.sets[0];
+      if (first.rpeConfirmed) { // the three verdict lifts
+        const reps = +first.reps;
+        assert.ok(reps >= lo && reps <= Math.max(lo, Math.min(12, hi)), date + " " + ex.name + " reps " + reps + " vs " + ex.targetReps);
+      }
+    }
+  }
 });

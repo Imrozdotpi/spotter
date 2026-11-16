@@ -27,7 +27,7 @@ No build step and nothing to install.
   python -m http.server 8000
   ```
 
-To see all three features without weeks of logging: open the app with `?demo=reset` on the end of the address, or **Spotter tab → Turn demo mode on.** Demo data is made up, clearly labelled, and stored separately from real data. `docs/DEMO_SCRIPT.md` has a recording script.
+To see all three features without weeks of logging: open the app with `?demo=present` on the end of the address (a month of generated history with the demo labels hidden, for screen recordings; `?demo=reset` keeps the label, `?demo=off` goes back), or **Spotter tab → Turn demo mode on.** Demo data is generated, stored separately from real data, and should always be described as synthetic. `docs/DEMO_SCRIPT.md` has a recording script.
 
 ## Test it
 

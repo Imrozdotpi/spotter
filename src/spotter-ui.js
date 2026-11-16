@@ -190,6 +190,7 @@
   function backupInfoHtml() {
     var h = "";
     if (SpotterStore.isDemo()) {
+      if (state.settings.presentation) return ""; // presentation view: no demo wording on screen
       return '<div class="sp-note">Demo mode is on. A backup made now contains demo data only and cannot be restored over your real logbook.</div>';
     }
     var last = state.settings.lastBackupAt;
@@ -207,7 +208,8 @@
   }
 
   function renderBanners() {
-    $("spDemoBanner").classList.toggle("sp-hidden", !SpotterStore.isDemo());
+    // The demo label is hidden only in presentation view (?demo=present), for screen recordings.
+    $("spDemoBanner").classList.toggle("sp-hidden", !SpotterStore.isDemo() || !!state.settings.presentation);
     var warn = $("spStoreWarn");
     if (SpotterStore.writeFailed()) {
       warn.textContent = "Could not save to this phone's storage. Download a backup now so nothing is lost.";
@@ -629,8 +631,9 @@
   function demoCardHtml() {
     var on = SpotterStore.isDemo();
     if (typeof SpotterDemo === "undefined" && !on) return "";
+    if (on && state.settings.presentation) return ""; // presentation view: leave with ?demo=off
     return '<div class="card"><div class="sp-title">Demo mode</div>' +
-      '<div class="sp-note">Loads 6 weeks of made-up training, sleep, food, one exam week and SAMPLE canteen prices into a separate storage area. Your real logbook is not touched and comes back when you turn demo mode off. Demo data is rebuilt fresh each time demo mode is turned on, and each new day.</div>' +
+      '<div class="sp-note">Loads about a month of made-up training, sleep, food, exams and canteen prices into a separate storage area. Your real logbook is not touched and comes back when you turn demo mode off. Demo data is rebuilt fresh each time demo mode is turned on, and each new day.</div>' +
       '<button class="btn ' + (on ? "btn-dark" : "btn-green") + ' sp-btn" style="width:100%; margin-top:10px;" onclick="SpotterUI.toggleDemo()">' + (on ? "Turn demo mode off (back to my data)" : "Turn demo mode on") + "</button></div>";
   }
 
@@ -673,7 +676,7 @@
     h += '<div class="card" id="spCanteenCard"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px;"><div class="sp-title">Canteen catalog</div>' +
       '<button class="btn btn-green sp-btn" onclick="SpotterUI.openItem(-1)">Add item</button></div>' +
       '<div class="sp-note" id="spPricedCount">' + esc(pricedCountText()) + "</div>" +
-      (SpotterStore.isDemo() ? '<div class="sp-low">Demo mode: these are SAMPLE prices, not real canteen prices.</div>' : '<div class="sp-note">Type the price of one serving in rupees. Use your own canteen\'s prices.</div>');
+      (SpotterStore.isDemo() && !state.settings.presentation ? '<div class="sp-low">Demo mode: these are SAMPLE prices, not real canteen prices.</div>' : '<div class="sp-note">Type the price of one serving in rupees. Use your own canteen\'s prices.</div>');
     state.canteen.forEach(function (it, i) { h += canteenRowHtml(it, i); });
     h += "</div>";
 
@@ -817,7 +820,7 @@
   function refreshStaleDemo() {
     if (!SpotterStore.isDemo() || typeof SpotterDemo === "undefined") return;
     if (state.settings.demoDate === todayKey()) return;
-    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
+    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES, undefined, { clean: !!state.settings.presentation }));
     reloadFromStorage();
   }
 
@@ -825,6 +828,17 @@
     if (SpotterStore.isDemo()) SpotterStore.exitDemo();
     else if (typeof SpotterDemo === "undefined") return;
     else SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES));
+    afterDemoSwitch();
+  }
+
+  // Turns demo mode on with freshly built data. clean = presentation view (no demo wording, no banner).
+  function startDemo(clean) {
+    if (typeof SpotterDemo === "undefined") return;
+    SpotterStore.enterDemo(SpotterDemo.generate(todayKey(), SPLITS, STAPLES, undefined, { clean: !!clean }));
+    afterDemoSwitch();
+  }
+
+  function afterDemoSwitch() {
     reloadFromStorage();
     var t = new Date();
     calYear = t.getFullYear();
@@ -910,19 +924,27 @@
     refresh();
   }
 
-  // Shortcut for screen recordings: open the app with ?demo=1 (turn demo mode on),
-  // ?demo=reset (rebuild the demo data from scratch) or ?demo=off (back to real data).
+  // Shortcuts for screen recordings, added to the end of the address:
+  //   ?demo=present  rebuild the demo data and hide every "demo" / "sample" label (presentation view)
+  //   ?demo=reset    rebuild the demo data, with the demo label shown
+  //   ?demo=1        turn demo mode on, keeping any changes made
+  //   ?demo=off      back to the real logbook
   // Demo mode only ever uses the separate spotter_demo_* keys, so this cannot touch the real logbook.
-  // The parameter is removed from the address afterwards so a reload does not repeat it.
+  // The demo parameter (only) is removed from the address afterwards so a reload does not repeat it.
   function applyDemoParam() {
-    var q = null;
-    try { q = new URLSearchParams(location.search).get("demo"); } catch (e) { return; }
+    var params = null, q = null;
+    try { params = new URLSearchParams(location.search); q = params.get("demo"); } catch (e) { return; }
     if (!q) return;
     var on = SpotterStore.isDemo();
     if (q === "off") { if (on) toggleDemo(); }
-    else if (q === "reset") { if (on) toggleDemo(); toggleDemo(); }
-    else if (q === "1" || q === "on") { if (!on) toggleDemo(); }
-    try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
+    else if (q === "present") startDemo(true);
+    else if (q === "reset") startDemo(false);
+    else if (q === "1" || q === "on") { if (!on) startDemo(false); }
+    try {
+      params.delete("demo");
+      var rest = params.toString();
+      history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + location.hash);
+    } catch (e) {}
   }
 
   var api = {

@@ -260,3 +260,23 @@ Requested by Imroz for the Stage 2 video: how to run it, fake history for the re
 - Not verified: that the `?demo=` text disappears from the address bar afterwards, and anything on a real iPhone.
 
 **AI-generated:** the shortcut, the guide and this entry. The talking points are suggestions for Imroz to rewrite so that they are true.
+
+## One-month demo data and presentation view (after the demo guide)
+
+Requested by Imroz: feed one month of realistic data and remove the "sample data" text, so the demo can be recorded and presented.
+
+**Changed**
+- `src/spotter-demo.js`: history is now 35 days (5 whole weeks, about a month; whole weeks so the load baseline has no half week). Meals are structured (breakfast, mess lunch, snack, mess dinner, sometimes chicken or soya) instead of random staples; one deterministic missed Saturday with a reason; five short notes; Monday weigh-ins with small variation. Today's three verdict sets are now chosen inside each exercise's own target rep range (before, one was 30 kg x 5 against a target of 8 to 12).
+- Presentation view: `generate(..., { clean: true })` produces the same data with no "(demo)" in exam names and `settings.presentation = true`. When it is true the UI hides the amber bar, the demo card, the "SAMPLE prices" note and the demo note in the backup section. `?demo=present` turns it on; `?demo=off` leaves it. Plain `?demo=reset` and the Spotter-tab switch still show the amber bar.
+- The `?demo=` parameter is now removed from the address on its own, leaving other parameters in place (before, the whole query string was removed). That also confirms the earlier unverified point: the parameter does disappear.
+- `tests/demo.test.js`: length 42 to 35 and the first-day check made date-relative; new tests for clean mode (same data, no demo/sample/fake/synthetic wording in logs, exams or canteen names), for realism of the history (meals 1550 to 2700 kcal, notes, one missed session, weigh-ins, 27 to 29 sessions) and for rep ranges. **Test correction:** my first guess for the session count (23 to 27) was wrong arithmetic; a six-day split over 34 days is about 29 minus the missed one, so the bound is now 27 to 29. The data was not changed.
+- `docs/DEMO_SCRIPT.md`, `MANUAL_TESTS.md`, `README.md` and `docs/screenshots/` (retaken in presentation view; `autopilot.png` added).
+
+**Checks** (headless Chrome)
+- Presentation view: the visible text of all five tabs and the header contains no "demo", "sample", "synthetic", "fake" or "made-up".
+- The full recording flow replays with no errors: Go for a PR / Normal day / Drop a set; Why? (e1RM 96.7, predicted 92.8, +4.2%); maintenance mode 3 to 2 sets and an exact undo; solver 2 x eggs + 1 x soya = ₹40, 50 g; log combo (protein 170 of 160); load chart; brief.
+- `npm test`: 116 pass. `npm run validate`: all checks pass.
+
+**Honesty note for Imroz.** This is the owner's own demo and the request was to remove the on-screen label. The label exists so synthetic data is never mistaken for real use, so the guide now tells you to say it is synthetic in the video and slides. The canteen prices are illustrative and unverified.
+
+**AI-generated:** all of the above.

@@ -3,11 +3,13 @@
  *
  * EVERYTHING THIS FILE PRODUCES IS MADE UP. It exists so the three features can
  * be shown without weeks of real logging. It is only ever written to the
- * separate spotter_demo_* storage keys, and the app shows a "DEMO DATA" banner
- * while it is in use.
+ * separate spotter_demo_* storage keys. By default the app shows a "Demo data"
+ * banner while it is in use; opts.clean builds the same data without any
+ * demo wording and with settings.presentation = true, which hides the banner
+ * (for screen recordings; the data is still synthetic and must be described as such).
  *
  * generate(endDate) is pure and deterministic: the same date and seed always
- * give the same 6 weeks. No clock is read here; the date is passed in.
+ * give the same 5 weeks (35 days, about a month). No clock is read here; the date is passed in.
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory(require("./spotter-core.js"));
@@ -15,7 +17,7 @@
 })(typeof self !== "undefined" ? self : this, function (C) {
   "use strict";
 
-  var DAYS = 42; // 6 weeks, ending on endDate
+  var DAYS = 35; // 5 weeks (about a month), ending on endDate. 35 = whole weeks, so the load baseline has no half-week in it.
   var SPLIT_BY_WEEKDAY = ["rest", "push1", "pull1", "legs1", "push2", "pull2", "legs2"]; // Sunday first, as in the tracker
 
   // Made-up starting weights (kg) for the tracker's template exercises.
@@ -66,6 +68,7 @@
   function stepFor(base) { return base >= 40 ? 2.5 : (base >= 15 ? 1 : 0.5); }
   function roundTo(v, step) { return Math.round(v / step) * step; }
   function lowRep(target) { var m = String(target).match(/\d+/); return m ? +m[0] : 8; }
+  function highRep(target) { var m = String(target).match(/\d+/g); return m ? +m[m.length - 1] : 12; }
   function templateFor(split, splits) {
     if (split === "legs1" || split === "legs2") return LEGS;
     return (splits[split] && splits[split].list) || [];
@@ -79,9 +82,21 @@
     return { split: split, durationMinutes: 0, bodyweight: "", waterMl: 0, supplements: [], foods: [], notes: "", exercises: [], sessionRpe: null, sleepHours: null, spotter: {} };
   }
 
-  function generate(endDate, splits, staples, seed) {
+  var NOTES = [ // attached to the 3rd, 8th, 14th and 20th session
+    "Bench felt heavy today. Slept badly.",
+    "Good session. Added 2.5 kg on the rows.",
+    "Left shoulder a bit tight. Kept the pressing light.",
+    "Short on time, library closes at 10."
+  ];
+  var NOTE_AT = [3, 8, 14, 20];
+
+  function generate(endDate, splits, staples, seed, opts) {
+    var clean = !!(opts && opts.clean);
+    var tag = clean ? "" : " (demo)";
     var rand = rng(seed === undefined ? 2026 : seed);
     function pick(n) { return Math.floor(rand() * n); }
+    function addFood(day, name) { var s = staple(staples, name); if (s) day.foods.push(s); }
+    var sessionNo = 0;
     var end = C.keyToDayNum(endDate), start = end - (DAYS - 1);
     var logs = {};
     var quizDay = end - 23; // a past exam, so the chart shows an earlier exam week too
@@ -92,19 +107,22 @@
       var week = Math.floor((dn - start) / 7);
       var d = emptyDay(split);
       var recent = dn > end - 14;
-      var missed = !recent && split !== "rest" && rand() < 0.1; // an occasional skipped session
+      var missed = split === "legs2" && week === 1; // one skipped Saturday, with a reason (not in the last two weeks)
 
       d.sleepHours = 6.5 + pick(4) * 0.5; // 6.5 - 8.0
       d.waterMl = 2000 + pick(7) * 250;
-      if (weekday(dn) === 1) d.bodyweight = (72 + week * 0.2).toFixed(1);
+      if (weekday(dn) === 1) d.bodyweight = (72 + week * 0.2 + (pick(3) - 1) * 0.1).toFixed(1); // weighed on Mondays
       if (rand() < 0.8) d.supplements.push("Creatine 5g");
       if (rand() < 0.6) d.supplements.push("Whey");
 
-      // Food: two mess meals plus a few staples. Kept comfortably above the calorie floor.
+      // Food: breakfast, mess lunch, an optional evening snack, mess dinner, sometimes a protein add-on.
+      // Totals are about 1600 to 2500 kcal and 65 to 140 g protein, always above the calorie floor.
+      addFood(d, rand() < 0.5 ? "Oats + Milk" : "2 Boiled Eggs");
       d.foods.push({ name: "Mess lunch (thali)", cal: 750, pro: 26, carb: 105, fat: 22 });
+      if (rand() < 0.55) addFood(d, rand() < 0.5 ? "Banana + PB" : "Whey Scoop");
       d.foods.push({ name: "Mess dinner", cal: 700, pro: 24, carb: 95, fat: 20 });
-      var nStaples = 3 + pick(2);
-      for (var f = 0; f < nStaples; f++) d.foods.push(staple(staples, staples[pick(staples.length)].name));
+      if (rand() < 0.4) addFood(d, "Chicken (150g)");
+      else if (rand() < 0.4) addFood(d, "Soya Chunks (50g)");
 
       if (split !== "rest" && !missed) {
         templateFor(split, splits).forEach(function (t) {
@@ -127,6 +145,10 @@
         if (dn >= quizDay - 2 && dn <= quizDay + 2) mins = Math.round(mins * 0.6); // an easier week around the past exam
         d.durationMinutes = mins;
         d.sessionRpe = 6 + pick(3); // 6 - 8
+        sessionNo++;
+        if (NOTE_AT.indexOf(sessionNo) >= 0) d.notes = NOTES[NOTE_AT.indexOf(sessionNo)];
+      } else if (missed) {
+        d.notes = "Skipped legs. DBMS lab viva prep.";
       }
       logs[key] = d;
     }
@@ -153,8 +175,8 @@
     today.sleepHours = 6;
     today.waterMl = 1500;
     today.supplements = ["Creatine 5g"];
-    // 120 g protein and 1410 kcal logged -> the poster's "40 g protein short" against a 160 g goal.
-    ["Whey Scoop", "Chicken (150g)", "Soya Chunks (50g)", "Oats + Milk", "White Rice (200g)", "White Rice (200g)"].forEach(function (n) {
+    // Breakfast, lunch, snack, dinner. 120 g protein and 1410 kcal in total -> the poster's "40 g protein short" against a 160 g goal.
+    ["Oats + Milk", "White Rice (200g)", "Chicken (150g)", "Whey Scoop", "White Rice (200g)", "Soya Chunks (50g)"].forEach(function (n) {
       var s = staple(staples, n);
       if (s) today.foods.push(s);
     });
@@ -175,8 +197,10 @@
         if (probe.status === "verdict") {
           var want = showcase ? targets[shown] : 0, bestGap = Infinity, choice = null;
           var rpes = showcase ? [7.5, 8, 8.5, 9] : [Number(t.p)];
-          for (var dw = -2; dw <= 2; dw++) {
-            for (var reps = 5; reps <= 11; reps++) {
+          // Keep reps inside the exercise's own target range (and the 1-12 range Spotter can read), so the set looks like a real one.
+          var repLo = lowRep(t.r), repHi = Math.min(12, Math.max(repLo, highRep(t.r)));
+          for (var dw = -4; dw <= 4; dw++) {
+            for (var reps = repLo; reps <= repHi; reps++) {
               for (var ri = 0; ri < rpes.length; ri++) {
                 var rpe3 = rpes[ri], w = w0 + dw * step;
                 var z = (C.e1rm(w, reps, rpe3) - probe.predicted) / probe.s;
@@ -209,12 +233,12 @@
       logs: logs,
       goals: { cal: 2500, pro: 160, carb: 280, fat: 70 },
       exams: C.cleanExams([
-        { label: "Quiz (demo)", date: C.dayNumToKey(quizDay) },
-        { label: "DBMS mid-sem (demo)", date: C.dayNumToKey(end + 2) },
-        { label: "Operating Systems (demo)", date: C.dayNumToKey(end + 4) }
+        { label: "Discrete Maths quiz" + tag, date: C.dayNumToKey(quizDay) },
+        { label: "DBMS mid-sem" + tag, date: C.dayNumToKey(end + 2) },
+        { label: "Operating Systems" + tag, date: C.dayNumToKey(end + 4) }
       ]),
       canteen: canteen,
-      settings: { calorieFloor: C.CONFIG.CALORIE_FLOOR_DEFAULT, lastBudget: 60, lastBackupAt: null, demoDate: endDate }
+      settings: { calorieFloor: C.CONFIG.CALORIE_FLOOR_DEFAULT, lastBudget: 60, lastBackupAt: null, demoDate: endDate, presentation: clean }
     };
   }
 

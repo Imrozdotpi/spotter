@@ -89,6 +89,10 @@ The data is built around today's date, so the exam countdown and the week charts
 
 **Why the order:** it follows the poster (Act I, II, III), then validation and the AI-versus-human point the handbook asks for.
 
+### Which day to record on
+
+The demo is built around today's weekday, so the first lift changes. **Monday, Thursday and Sunday: Flat Bench Press** (the script above). **Wednesday and Saturday: Barbell Squat.** **Tuesday and Friday: Pull-Ups**, whose Why? sheet shows an e1RM of about 15 kg because only the added weight is logged (see LIMITATIONS.md). On those two days, open the Why? sheet on the second lift (Deadlift / Bent-Over Barbell Rows) instead, or record on another day. In every case the first three lifts give Go for a PR, Normal day and Drop a set, and the Autopilot and protein numbers are the same.
+
 ### If you run over 2:00
 
 Cut in this order: the Why? sheet in Act III, the chart beat, then the "Next lift" line in Act I.

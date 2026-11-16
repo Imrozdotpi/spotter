@@ -219,7 +219,6 @@
 
   // Things the user has typed or seen that are not stored: they reset when the date changes.
   var ui = { gapOverride: null, solve: null, solveSig: "", loggedNote: "", deleteArmed: -1 };
-  var TONE_BORDER = { green: "var(--accent)", amber: "var(--legs)", red: "var(--push)", blue: "var(--pull)" };
   var DEFAULT_GOALS = { cal: 2500, pro: 160, carb: 280, fat: 70 }; // same defaults as the tracker
 
   function n1(v) { return C.fmt(v, v % 1 ? 1 : 0); }
@@ -246,8 +245,8 @@
     if (r.status === "unstable") {
       return '<button class="sp-chip sp-grey"' + click + ">Trend not readable yet · Why?</button>";
     }
-    var h = '<button class="sp-chip sp-' + r.verdict.tone + '"' + click + ">● " + esc(r.verdict.chip) +
-      ' <span style="font-weight:600; opacity:0.8;">· ' + r.n + " sessions · Why?</span></button>";
+    var h = '<button class="sp-chip sp-' + r.verdict.tone + '"' + click + ">" + esc(r.verdict.chip) +
+      ' <span class="sp-meta">· ' + r.n + " sessions · Why?</span></button>";
     if (r.confidence === "low") {
       h += '<div class="sp-low">' + esc(C.lowConfidenceText(r)) + "</div>";
       if (r.lowReasons.indexOf("rpe-prefilled") >= 0 || r.lowReasons.indexOf("rpe-unknown") >= 0) {
@@ -348,7 +347,7 @@
     var maint = d.spotter && d.spotter.maintenance;
     if (!a.show && !maint) { el.innerHTML = ""; return; }
     var t = C.autopilotText(a);
-    var h = '<div class="card" style="border-color:' + (TONE_BORDER[t.tone] || "var(--border)") + ';">';
+    var h = '<div class="card sp-status sp-tone-' + (t.tone || "grey") + '">';
     h += '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;"><div>';
     h += '<div class="sp-kicker">Exam-Week Autopilot</div>';
     h += '<div class="sp-title" style="margin-top:2px;">' + esc(t.title || "Maintenance mode is on") + "</div></div>";
@@ -418,20 +417,20 @@
       var x = gap + i * (bw + gap), cx = x + bw / 2;
       if (w.hasData) {
         var bh = Math.max(4, (w.load / max) * (base - top));
-        var fill = w.hasExam ? "var(--legs)" : (w.isCurrent ? "var(--accent)" : "#3b4a66");
+        var fill = w.hasExam ? "var(--legs)" : (w.isCurrent ? "var(--accent)" : "var(--rest)");
         svg += '<rect x="' + x.toFixed(1) + '" y="' + (base - bh).toFixed(1) + '" width="' + bw + '" height="' + bh.toFixed(1) + '" rx="5" style="fill:' + fill + ";" + (w.isCurrent ? " stroke:var(--text-main); stroke-width:1.5;" : "") + '"/>';
-        svg += '<text x="' + cx.toFixed(1) + '" y="' + (base - bh - 5).toFixed(1) + '" text-anchor="middle" style="fill:var(--text-main); font-size:10px; font-weight:800;">' + C.fmt(w.load, 0) + "</text>";
+        svg += '<text x="' + cx.toFixed(1) + '" y="' + (base - bh - 5).toFixed(1) + '" text-anchor="middle" style="fill:var(--text-main); font-size:10px; font-weight:600;">' + C.fmt(w.load, 0) + "</text>";
       } else {
         svg += '<rect x="' + x.toFixed(1) + '" y="' + (base - 16) + '" width="' + bw + '" height="16" rx="5" style="fill:none; stroke:' + (w.hasExam ? "var(--legs)" : "var(--border)") + '; stroke-width:1.5; stroke-dasharray:4 3;"/>';
         svg += '<text x="' + cx.toFixed(1) + '" y="' + (base - 21) + '" text-anchor="middle" style="fill:var(--text-muted); font-size:10px;">–</text>';
       }
       svg += '<text x="' + cx.toFixed(1) + '" y="' + (base + 14) + '" text-anchor="middle" style="fill:var(--text-muted); font-size:9px;">' + w.end.slice(8) + "/" + w.end.slice(5, 7) + "</text>";
-      if (w.isCurrent) svg += '<text x="' + cx.toFixed(1) + '" y="' + (base + 26) + '" text-anchor="middle" style="fill:var(--accent); font-size:9px; font-weight:800;">this week</text>';
+      if (w.isCurrent) svg += '<text x="' + cx.toFixed(1) + '" y="' + (base + 26) + '" text-anchor="middle" style="fill:var(--accent); font-size:9px; font-weight:600;">this week</text>';
     });
     svg += "</svg>";
     function key(style, label) { return '<span style="display:inline-flex; align-items:center; gap:4px; margin-right:10px;"><span style="width:10px; height:10px; border-radius:3px; display:inline-block; ' + style + '"></span>' + label + "</span>"; }
     var h = '<div class="sp-note" style="margin:0 0 6px;">load = session RPE × minutes, summed over each 7 days. Labels show the last day of each week.</div>' + svg;
-    h += '<div class="sp-note">' + key("background:var(--accent);", "This week") + key("background:var(--legs);", "Exam week") + key("background:#3b4a66;", "Other") + key("border:1.5px dashed var(--border);", "No load logged") + "</div>";
+    h += '<div class="sp-note">' + key("background:var(--accent);", "This week") + key("background:var(--legs);", "Exam week") + key("background:var(--rest);", "Other") + key("border:1.5px dashed var(--border);", "No load logged") + "</div>";
     var ls = C.loadSummary(logs, activeDate);
     var line = ls.status === "ok" ? "Ratio " + C.fmt(ls.ratio, 2) + " · " + ls.band.label + ". A warning flag, not an injury predictor."
       : (ls.status === "not-enough" ? "Not enough history yet for a ratio." : "No load logged this week.");
@@ -456,12 +455,12 @@
       return h0;
     }
     var ok = res.status === "optimal";
-    var h = '<div class="sp-chip ' + (ok ? "sp-green" : "sp-amber") + '" style="border-radius:10px; width:100%; margin-top:12px; white-space:normal; text-align:left;">' + esc(msg) + "</div>";
+    var h = '<div class="sp-chip ' + (ok ? "sp-green" : "sp-amber") + '" style="width:100%; margin-top:12px; white-space:normal;">' + esc(msg) + "</div>";
     res.plan.lines.forEach(function (l) {
       h += '<div class="sp-row"><span style="color:var(--text-main);"><strong>' + l.servings + " ×</strong> " + esc(l.name) + "</span><span>₹" + rs(l.cost) + " · " + esc(n1(l.pro)) + " g · " + C.fmt(l.cal, 0) + " kcal</span></div>";
     });
     var t = res.plan.totals;
-    h += '<div class="sp-row" style="border-bottom:none;"><span style="color:var(--text-main); font-weight:900;">Total</span><span style="color:var(--accent);">₹' + rs(t.cost) + " · " + esc(n1(t.pro)) + " g · " + C.fmt(t.cal, 0) + " kcal</span></div>";
+    h += '<div class="sp-row" style="border-bottom:none;"><span style="color:var(--text-main); font-weight:700;">Total</span><span style="color:var(--accent);">₹' + rs(t.cost) + " · " + esc(n1(t.pro)) + " g · " + C.fmt(t.cal, 0) + " kcal</span></div>";
     h += '<div style="display:flex; gap:8px; margin-top:8px;">' +
       '<button class="btn btn-green sp-btn" style="flex:1;" onclick="SpotterUI.logCombo()">Log this combo</button>' +
       '<button class="btn btn-dark sp-btn" onclick="SpotterUI.whySolver()">Why?</button></div>';
@@ -543,8 +542,8 @@
     if (!el) return;
     var li = C.lowIntake(logs, activeDate, floor());
     if (!li.flag) { el.innerHTML = ""; return; }
-    el.innerHTML = '<div class="card" style="border-color:var(--pull);"><div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
-      '<div><div class="sp-kicker" style="color:#93c5fd;">A gentle note</div><div class="sp-note" style="color:var(--text-main);">' + esc(C.lowIntakeText(li)) + "</div></div>" +
+    el.innerHTML = '<div class="card sp-status sp-tone-blue"><div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
+      '<div><div class="sp-title">A gentle note</div><div class="sp-note" style="color:var(--text-main);">' + esc(C.lowIntakeText(li)) + "</div></div>" +
       '<button class="btn btn-dark sp-btn" onclick="SpotterUI.whyLowIntake()">Why?</button></div></div>';
   }
 
@@ -575,7 +574,7 @@
       if (r.status !== "verdict" && r.status !== "building") return;
       any = true;
       var chip = r.status === "verdict"
-        ? '<button class="sp-chip sp-' + r.verdict.tone + '" onclick="SpotterUI.whyReadiness(' + i + ')">● ' + esc(r.verdict.chip) + "</button>"
+        ? '<button class="sp-chip sp-' + r.verdict.tone + '" onclick="SpotterUI.whyReadiness(' + i + ')">' + esc(r.verdict.chip) + "</button>"
         : '<button class="sp-chip sp-grey" onclick="SpotterUI.whyReadiness(' + i + ')">' + r.n + " of " + r.need + " sessions</button>";
       h += '<div class="sp-item"><div class="sp-item-main">' + esc(ex.name) +
         (r.status === "verdict" ? "<small>" + (r.pctDiff >= 0 ? "+" : "−") + C.fmt(Math.abs(r.pctDiff), 1) + "% vs trend · " + r.n + " sessions" + (r.confidence === "low" ? " · low confidence" : "") + "</small>" : "<small>Building your trend</small>") +
@@ -622,7 +621,7 @@
     return '<div class="sp-item">' +
       '<div class="sp-item-main">' + esc(it.name) + (it.available === false ? ' <span class="sp-grey">(not available)</span>' : "") +
       "<small>" + esc(n1(it.pro)) + " g protein · " + C.fmt(it.cal, 0) + " kcal · max " + it.maxServings +
-      ' <span id="spNeed-' + i + '" style="color:#fcd34d;">' + (priced ? "" : "· needs price") + "</span></small></div>" +
+      ' <span id="spNeed-' + i + '" style="color:var(--legs);">' + (priced ? "" : "· needs price") + "</span></small></div>" +
       '<input type="number" inputmode="decimal" class="mob-input sp-in" style="width:76px;" placeholder="₹" aria-label="Price in rupees" value="' + (priced ? esc(it.price) : "") + '" onchange="SpotterUI.setPrice(' + i + ', this.value)" />' +
       '<button class="btn btn-dark sp-btn" onclick="SpotterUI.openItem(' + i + ')">Edit</button></div>';
   }
@@ -639,17 +638,17 @@
     var el = $("spTab");
     if (!el) return;
     var h = "";
-    h += '<div class="card"><div style="font-size:1.3rem; font-weight:900; letter-spacing:3px; color:var(--accent);">SPOTTER</div>' +
-      '<div style="font-weight:800; margin-top:2px;">Your logbook is the wearable.</div>' +
+    h += '<div class="sp-page-head"><div class="sp-h1">Spotter</div>' +
+      '<div style="font-weight:600; margin-top:2px;">Your logbook is the wearable.</div>' +
       '<div class="sp-note">AI training insights for students, from the workout log they already keep. No band. No subscription. ₹0.</div></div>';
 
     h += '<div id="spBrief"></div>';
 
-    h += '<div class="card"><div class="sp-kicker">How it works</div><div style="margin-top:8px;">' +
-      '<div class="sp-pipe-box">Your logbook<small>never leaves your phone</small></div><div class="sp-pipe-arrow">↓</div>' +
-      '<div class="sp-pipe-box">On-device AI<small>regression · time series · linear programming</small></div><div class="sp-pipe-arrow">↓</div>' +
-      '<div class="sp-pipe-box">Your spotter<small>explains every call</small></div></div>' +
-      '<div class="sp-note">The "AI" here is three small models that run on this phone: a regression on your lifts, a time series of your session load, and an integer programme for food cost. The explanations are fixed templates. There is no language model and no internet connection.</div></div>';
+    h += '<div class="card"><div class="sp-title">How it works</div><div class="sp-steps">' +
+      '<div><span>Your logbook</span><span>never leaves your phone</span></div>' +
+      '<div><span>On-device AI</span><span>regression · time series · linear programming</span></div>' +
+      '<div><span>Your spotter</span><span>explains every call</span></div></div>' +
+      '<div class="sp-note">The "AI" is three small models that run on this phone: a regression on your lifts, a time series of your session load, and an integer programme for food cost. The explanations are fixed templates. There is no language model and no internet connection.</div></div>';
 
     // Settings: exams
     h += '<div class="card"><div class="sp-title">Exam dates</div>';
@@ -662,7 +661,7 @@
       '<div><label class="sp-lbl" for="spExamLabel">Exam</label><input type="text" id="spExamLabel" maxlength="60" class="mob-input sp-in sp-left" placeholder="e.g. DBMS mid-sem" /></div>' +
       '<div><label class="sp-lbl" for="spExamDate">Date</label><input type="date" id="spExamDate" class="mob-input sp-in" /></div></div>' +
       '<div id="spExamMsg" class="sp-low"></div>' +
-      '<button class="btn btn-green sp-btn" style="width:100%; margin-top:8px;" onclick="SpotterUI.addExam()">+ Add exam</button></div>';
+      '<button class="btn btn-green sp-btn" style="width:100%; margin-top:8px;" onclick="SpotterUI.addExam()">Add exam</button></div>';
 
     // Settings: floor and budget
     h += '<div class="card"><div class="sp-title">Safety and budget</div><div class="sp-grid2" style="margin-top:8px;">' +
@@ -672,7 +671,7 @@
 
     // Settings: canteen
     h += '<div class="card" id="spCanteenCard"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px;"><div class="sp-title">Canteen catalog</div>' +
-      '<button class="btn btn-green sp-btn" onclick="SpotterUI.openItem(-1)">+ Add item</button></div>' +
+      '<button class="btn btn-green sp-btn" onclick="SpotterUI.openItem(-1)">Add item</button></div>' +
       '<div class="sp-note" id="spPricedCount">' + esc(pricedCountText()) + "</div>" +
       (SpotterStore.isDemo() ? '<div class="sp-low">Demo mode: these are SAMPLE prices, not real canteen prices.</div>' : '<div class="sp-note">Type the price of one serving in rupees. Use your own canteen\'s prices.</div>');
     state.canteen.forEach(function (it, i) { h += canteenRowHtml(it, i); });
@@ -682,8 +681,8 @@
     h += '<div class="card"><div class="sp-title">Backup and restore</div>' +
       '<div class="sp-note">Your logbook is stored only in this browser on this phone. A backup file is the only copy. It contains your personal training and food log, so keep it somewhere private.</div>' +
       '<div style="display:flex; gap:8px; margin-top:10px;">' +
-      '<button class="btn btn-green sp-btn" style="flex:1;" onclick="exportBackup()">Download Backup</button>' +
-      '<button class="btn btn-dark sp-btn" style="flex:1;" onclick="document.getElementById(\'restoreInput\').click()">Restore File</button></div>' +
+      '<button class="btn btn-green sp-btn" style="flex:1;" onclick="exportBackup()">Download backup</button>' +
+      '<button class="btn btn-dark sp-btn" style="flex:1;" onclick="document.getElementById(\'restoreInput\').click()">Restore file</button></div>' +
       '<div id="spBackupInfo2"></div></div>';
 
     h += demoCardHtml();
@@ -757,7 +756,7 @@
     h += '<div style="display:flex; gap:8px; margin-top:12px;">' +
       '<button class="btn btn-dark sp-btn" style="flex:1;" onclick="closeModals()">Cancel</button>' +
       '<button class="btn btn-green sp-btn" style="flex:1;" onclick="SpotterUI.saveItem(' + i + ')">Save</button></div>';
-    if (i >= 0) h += '<button class="btn btn-dark sp-btn" id="spItDel" style="width:100%; margin-top:8px; color:#fca5a5;" onclick="SpotterUI.deleteItem(' + i + ')">Delete item</button>';
+    if (i >= 0) h += '<button class="btn btn-dark sp-btn" id="spItDel" style="width:100%; margin-top:8px; color:var(--push);" onclick="SpotterUI.deleteItem(' + i + ')">Delete item</button>';
     openSheet(h);
   }
 

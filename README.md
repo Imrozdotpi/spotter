@@ -73,12 +73,13 @@ docs/
   VALIDATION.md          generated test report
   MANUAL_TESTS.md        step-by-step checklist for the iPhone
   BUILD_LOG.md           what was built when, and what was AI-generated
+  DESIGN.md              why the interface was restyled, with sources
 ```
 
 ## Your data
 
 - Stored in the browser's `localStorage` on your device, under the tracker's original keys plus keys starting with `spotter_`.
-- **Back it up.** Spotter tab → Backup and restore → Download Backup. The file is the only copy outside the phone. It contains your personal log in plain text.
+- **Back it up.** Spotter tab → Backup and restore → Download backup. The file is the only copy outside the phone. It contains your personal log in plain text.
 - Browser storage belongs to one web address. If you open Spotter at a different address than your old tracker, it starts empty: download a backup from the old one and restore it in the new one.
 - On iPhone, add the app to the Home Screen. Safari can clear the data of sites that are not used for about a week.
 
@@ -90,7 +91,7 @@ Nothing in this repository deploys anything. There is no `.github` folder, no wo
 2. Create a GitHub repository and push this folder to it (`git remote add origin …`, `git push`).
 3. In the repository: Settings → Pages → deploy from the `main` branch, root folder.
 4. Open the Pages address on your phone. `index.html` is at the root and every path is relative, so a project address such as `https://<user>.github.io/<repo>/` works without changes.
-5. If the address is different from the one you use today, the app opens empty. Restore your backup (Spotter tab → Restore File).
+5. If the address is different from the one you use today, the app opens empty. Restore your backup (Spotter tab → Restore file).
 6. Add to Home Screen. Check that your data is there too; if not, restore the backup again inside the Home Screen app.
 7. Work through `docs/MANUAL_TESTS.md`.
 

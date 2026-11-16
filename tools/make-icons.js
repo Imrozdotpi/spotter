@@ -11,9 +11,9 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 
-const NAVY = [9, 13, 22]; // --bg-main  #090d16
-const EMERALD = [16, 185, 129]; // --accent   #10b981
-const MINT = [52, 211, 153]; // lighter emerald #34d399
+const NAVY = [15, 15, 14]; // --bg-main  #0f0f0e (near-black; the name is historical)
+const EMERALD = [76, 195, 138]; // --accent   #4cc38a
+const MINT = [237, 236, 231]; // --text-main #edece7 (the chevron)
 
 // Shapes in a 0..1 square. Rounded rectangles and thick line segments.
 const RECTS = [

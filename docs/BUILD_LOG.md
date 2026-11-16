@@ -209,3 +209,36 @@ Nothing was deployed, pushed or published by the AI. There is no git remote.
 - No `.github` folder, no git remote, no deployment configuration.
 
 **AI-generated:** the QA run and this entry.
+
+## Redesign: removing the "AI-generated" look (after M8)
+
+Requested by Imroz: research which design elements make an interface look AI-generated, then change the UI accordingly.
+
+**Research**
+- Web search plus two articles read in full (a third returned "410 Gone"). Sources and the list of 14 commonly cited tells are in `docs/DESIGN.md`. They are design blogs and checklists, not studies.
+
+**Audit**
+- 12 of the 14 tells were present in Spotter, including in the original tracker's own styling: emoji as icons, Tailwind's default colour palette by hex value, gradient bars, blurred translucent bars, all-caps tracked labels, tinted pill badges, boxes inside cards, coloured card borders, a boxed stat row, an arrowed step diagram, weight 800–900 on almost all text, and exclamation-mark copy.
+
+**Changed**
+- `index.html`: the whole `<style>` block and the page markup were rewritten (same element ids and the same handlers; the patch refused to run unless every id and handler of the old markup was still present). New neutral near-black palette with one green accent, solid bars, flat progress bars, hairlines instead of nested boxes, text tabs with an underline, sentence-case labels, weights 400/600/700, tabular figures, a drawn checkbox, eleven original inline SVG line icons, plain button labels.
+- Templates inside the tracker's script: emoji removed from the ghost bar, muscle headings and the rest-day card; food and PR rows use the new list style.
+- `src/spotter-ui.js`: verdicts and results are a coloured dot plus words (no tinted pill, no "●" character); state cards use a dot before the title (no coloured border); "How it works" is three plain rows; the Spotter page title is ordinary text.
+- `manifest.webmanifest`, the theme-colour tag, `tools/make-icons.js` and the regenerated icons use the new colours. `sw.js` is now `spotter-v2`.
+- `docs/DESIGN.md` (new), label changes carried into `docs/MANUAL_TESTS.md` and `README.md`.
+- `docs/screenshots/`: six screenshots in demo mode.
+
+**Not changed**
+- No logic, no data shape, no storage key, no poster wording. Tab names, split names and exercise names are untouched. The "Burned" label and formula are untouched (still Imroz's open decision A4).
+- This overrides one line of the original brief ("new UI must reuse these theme colours"), at Imroz's request. The CSS variable names are the same; their values changed.
+
+**Checks**
+- `npm test`: 112 pass. `npm run validate`: all checks pass (it also confirms the code quotes in section 6 are still present).
+- Contrast computed from the hex values: body text 16.2:1, muted text 6.9:1 on a card. Placeholders and the delete ✕ first measured about 3:1 and were raised.
+- Reviewed from screenshots taken with the Chrome already installed on the build machine, in headless mode at 500 px wide (it would not go narrower). **Not checked at 393 px after the redesign and not checked on an iPhone.**
+
+**For Imroz to verify**
+- Look at every tab on the phone, especially the header row (date and two timers) and the set table, which are the tightest at 393 px.
+- If the old look is preferred, `git revert` this one commit.
+
+**AI-generated:** the research summary, the redesign and this entry.

@@ -151,10 +151,10 @@ The brute force (`tests/bruteforce.js`) shares no code with the solver. It reads
 
 | Timing (this machine, this run) | Value |
 |---|---|
-| Solver mean time | 0.013 ms |
-| Solver max time | 0.914 ms |
+| Solver mean time | 0.017 ms |
+| Solver max time | 0.651 ms |
 | Solver max search nodes | 96 |
-| Brute force mean time | 0.4 ms |
+| Brute force mean time | 0.5 ms |
 
 **Poster case: "40 g protein short, ₹60 left. Cheapest canteen combo?"**
 

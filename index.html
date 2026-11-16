@@ -8,7 +8,7 @@
   <!-- SPOTTER HOOK: rebrand, installable app (manifest + icons). All paths are relative. -->
   <meta name="apple-mobile-web-app-title" content="Spotter" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#131b2e" />
+  <meta name="theme-color" content="#0f0f0e" />
   <meta name="description" content="Spotter: your logbook is the wearable. On-device training insights from the workout log you already keep." />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
@@ -16,21 +16,31 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png" />
   <title>Spotter</title>
   <style>
+    /*
+     * Spotter visual system (redesign, see docs/DESIGN.md).
+     * Principles: neutral near-black surfaces instead of tinted navy, one accent used sparingly,
+     * depth from surface lightness (no blur, glow or gradient), hairlines instead of boxes inside boxes,
+     * sentence-case labels, line icons instead of emoji, weight 400/600/700 instead of everything bold.
+     * The variable names are the tracker's originals, so existing code keeps working.
+     */
     :root {
-      --bg-main: #090d16;
-      --bg-card: #131b2e;
-      --bg-input: #0b101b;
-      --border: #24324d;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #10b981;
-      --accent-dim: rgba(16, 185, 129, 0.16);
-      --push: #ef4444;
-      --pull: #3b82f6;
-      --legs: #f59e0b;
-      --rest: #64748b;
-      --cal: #f97316;
-      --water: #06b6d4;
+      --bg-main: #0f0f0e;      /* page */
+      --bg-card: #191918;      /* raised surface */
+      --bg-input: #222220;     /* controls, one step lighter again */
+      --border: #30302d;       /* hairlines */
+      --text-main: #edece7;
+      --text-muted: #a3a29a;   /* 7.5:1 on the page, 6.9:1 on a card */
+      --accent: #4cc38a;       /* the only brand colour */
+      --accent-ink: #06140d;   /* text on the accent */
+      --accent-dim: #1d2a23;
+      --push: #e5675c;         /* also "red" status */
+      --pull: #6fa8dc;         /* also "blue" status */
+      --legs: #dfa63c;         /* also "amber" status */
+      --rest: #6c6b65;
+      --cal: #dd8a4b;
+      --water: #5fb6c6;
+      --radius: 10px;
+      --radius-sm: 8px;
     }
 
     * {
@@ -44,19 +54,25 @@
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
-      padding-bottom: 90px;
+      padding-bottom: 86px;
       overflow-x: hidden;
+      font-size: 15px;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Sticky Mobile App Header */
+    button { cursor: pointer; color: inherit; }
+    strong { font-weight: 600; }
+    .ic { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- Header ---------- */
     .app-header {
       position: sticky;
       top: 0;
       z-index: 150;
-      background: rgba(19, 27, 46, 0.96);
-      backdrop-filter: blur(10px);
+      background: var(--bg-main);
       border-bottom: 1px solid var(--border);
-      padding: 10px 14px;
+      padding: 8px 14px 10px;
     }
 
     .header-top {
@@ -67,311 +83,177 @@
     }
 
     .date-trigger-btn {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
+      background: none;
+      border: none;
       color: var(--text-main);
-      padding: 7px 12px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 0.9rem;
+      padding: 6px 0;
+      min-height: 36px;
+      font-weight: 600;
+      font-size: 1.05rem;
       display: flex;
       align-items: center;
       gap: 6px;
     }
+    .date-trigger-btn .ic { color: var(--text-muted); }
+    .date-trigger-btn .ic-chev { width: 14px; height: 14px; }
 
-    .timer-pills {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
+    .timer-pills { display: flex; gap: 6px; align-items: center; }
 
     .pill-timer {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 800;
+      background: var(--bg-card);
+      border: none;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
-      color: var(--accent);
+      color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
+    .pill-timer .ic { width: 15px; height: 15px; color: var(--text-muted); }
+    .pill-rest { color: var(--text-main); }
 
-    .pill-rest {
-      color: #38bdf8;
-    }
-
-    /* Collapsible Calendar Drawer */
+    /* ---------- Calendar ---------- */
     .calendar-drawer {
       margin-top: 10px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
       padding: 12px;
       display: none;
     }
+    .calendar-drawer.open { display: block; }
 
-    .calendar-drawer.open {
-      display: block;
-    }
-
-    .cal-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
+    .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .cal-nav button {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: var(--bg-input);
+      border: none;
       color: var(--text-main);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-weight: 700;
+      min-width: 40px;
+      min-height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .cal-weekdays, .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      text-align: center;
-    }
-
-    .cal-weekdays div {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      padding-bottom: 4px;
-    }
+    .cal-weekdays, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .cal-weekdays div { font-size: 0.72rem; color: var(--text-muted); padding-bottom: 4px; }
 
     .cal-cell {
       aspect-ratio: 1;
-      border-radius: 8px;
-      background: var(--bg-card);
+      border-radius: var(--radius-sm);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 0.82rem;
-      font-weight: 700;
-      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
     }
+    .cal-cell.empty { background: transparent; }
+    .cal-cell.selected { background: var(--text-main); color: var(--bg-main); font-weight: 600; }
+    .cal-cell.today:not(.selected) { color: var(--accent); font-weight: 700; }
 
-    .cal-cell.empty {
-      background: transparent;
-    }
-
-    .cal-cell.selected {
-      border: 2px solid var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .cal-cell.today {
-      box-shadow: inset 0 0 0 1px var(--accent);
-    }
-
-    .dot-row {
-      display: flex;
-      gap: 2px;
-      margin-top: 2px;
-    }
-
-    .split-dot {
-      width: 12px;
-      height: 3.5px;
-      border-radius: 3px;
-    }
-
-    .food-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--cal);
-    }
-
+    .dot-row { display: flex; gap: 2px; margin-top: 3px; align-items: center; }
+    .split-dot { width: 10px; height: 3px; border-radius: 2px; }
+    .food-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--cal); }
     .dot-push1, .dot-push2 { background: var(--push); }
     .dot-pull1, .dot-pull2 { background: var(--pull); }
     .dot-legs1, .dot-legs2 { background: var(--legs); }
     .dot-rest { background: var(--rest); }
 
-    /* Main Mobile Container */
-    .mobile-wrap {
-      padding: 12px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .view-section {
-      display: none;
-    }
-
-    .view-section.active {
-      display: block;
-    }
+    /* ---------- Layout ---------- */
+    .mobile-wrap { padding: 12px 14px; max-width: 600px; margin: 0 auto; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
 
     .card {
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius);
       padding: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .card-title { font-size: 0.95rem; font-weight: 600; }
+    .sub-label { font-size: 0.8rem; color: var(--text-muted); margin: 14px 0 6px; }
+    .field-label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
 
-    /* Horizontal Scroll Split Pills */
+    /* ---------- Split tabs: text with an underline, not pills ---------- */
     .split-scroll {
       display: flex;
-      gap: 6px;
+      gap: 18px;
       overflow-x: auto;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
+      margin: 0 -14px 12px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
       scrollbar-width: none;
     }
-
-    .split-scroll::-webkit-scrollbar {
-      display: none;
-    }
+    .split-scroll::-webkit-scrollbar { display: none; }
 
     .split-chip {
       flex: 0 0 auto;
-      padding: 8px 14px;
-      border-radius: 99px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      background: var(--bg-input);
+      padding: 10px 0 9px;
+      min-height: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: none;
       color: var(--text-muted);
-      border: 1px solid var(--border);
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
     }
+    .split-chip[class*="active-"] { color: var(--text-main); font-weight: 600; }
+    .split-chip.active-push1, .split-chip.active-push2 { border-bottom-color: var(--push); }
+    .split-chip.active-pull1, .split-chip.active-pull2 { border-bottom-color: var(--pull); }
+    .split-chip.active-legs1, .split-chip.active-legs2 { border-bottom-color: var(--legs); }
+    .split-chip.active-rest { border-bottom-color: var(--rest); }
 
-    .split-chip.active-push1, .split-chip.active-push2 {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: var(--push);
-      color: #fca5a5;
-    }
+    /* ---------- Day summary: figures separated by hairlines ---------- */
+    .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); margin: 4px 0 12px; }
+    .stat-mini { padding: 0 8px; border-left: 1px solid var(--border); }
+    .stat-mini:first-child { padding-left: 0; border-left: none; }
+    .stat-mini-lbl { font-size: 0.72rem; color: var(--text-muted); }
+    .stat-mini-val { font-size: 1.05rem; font-weight: 600; margin-top: 1px; font-variant-numeric: tabular-nums; }
 
-    .split-chip.active-pull1, .split-chip.active-pull2 {
-      background: rgba(59, 130, 246, 0.2);
-      border-color: var(--pull);
-      color: #93c5fd;
-    }
+    .prog-bg { height: 4px; background: var(--bg-input); border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s; }
 
-    .split-chip.active-legs1, .split-chip.active-legs2 {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: var(--legs);
-      color: #fcd34d;
-    }
+    /* ---------- Exercises ---------- */
+    .muscle-tag { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin: 18px 0 8px 2px; }
 
-    .split-chip.active-rest {
-      background: rgba(100, 116, 139, 0.25);
-      border-color: var(--rest);
-      color: #cbd5e1;
-    }
-
-    /* Quick Stats Strip */
-    .stats-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .stat-mini {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 6px;
-      text-align: center;
-    }
-
-    .stat-mini-lbl {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-
-    .stat-mini-val {
-      font-size: 0.95rem;
-      font-weight: 900;
-      margin-top: 2px;
-    }
-
-    .prog-bg {
-      height: 8px;
-      background: var(--bg-input);
-      border-radius: 99px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .prog-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      transition: width 0.25s;
-    }
-
-    /* Exercise Cards for Mobile */
-    .muscle-tag {
-      font-size: 0.8rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--accent);
-      margin: 14px 0 8px 4px;
-    }
-
-    .ex-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    .ex-card.done-card {
-      border-color: rgba(16, 185, 129, 0.6);
-    }
+    .ex-card { background: var(--bg-card); border-radius: var(--radius); padding: 14px 12px 10px; margin-bottom: 10px; }
+    .ex-card.done-card .ex-name-input { color: var(--text-muted); } /* finished: the name dims, no coloured edge */
 
     .ex-name-input {
       width: 100%;
       background: transparent;
       border: none;
-      border-bottom: 1px dashed var(--border);
+      border-bottom: 1px solid transparent;
       color: var(--text-main);
       font-size: 1rem;
-      font-weight: 800;
-      padding-bottom: 4px;
-      margin-bottom: 6px;
+      font-weight: 600;
+      padding: 0 0 4px;
+      margin-bottom: 2px;
     }
+    .ex-name-input:focus { outline: none; border-bottom-color: var(--border); }
 
-    .ex-meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
+    .ex-meta-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+    .ex-meta-row strong { color: var(--text-main); font-weight: 500; }
 
     .ghost-bar {
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: #7dd3fc;
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
       margin-bottom: 10px;
+      padding: 6px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
+    .ghost-bar strong { color: var(--text-main); font-variant-numeric: tabular-nums; }
+    .link-btn { background: none; border: none; color: var(--accent); font-size: 0.8rem; font-weight: 600; padding: 8px 0 8px 12px; }
 
-    /* Mobile Set Grid Row (Zero Horizontal Overflow) */
     .set-header-grid, .set-row-grid {
       display: grid;
       grid-template-columns: 32px 1fr 1fr 54px 38px 24px;
@@ -379,156 +261,106 @@
       align-items: center;
       margin-bottom: 6px;
     }
-
-    .set-header-grid {
-      font-size: 0.66rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 800;
-      text-align: center;
-    }
-
-    .set-row-grid.done-row {
-      background: rgba(16, 185, 129, 0.1);
-      border-radius: 8px;
-      padding: 3px 0;
-    }
+    .set-header-grid { font-size: 0.72rem; color: var(--text-muted); text-align: center; }
+    .set-row-grid.done-row .mob-input { color: var(--text-muted); }
 
     .type-btn {
-      height: 36px;
-      border-radius: 8px;
-      background: var(--bg-input);
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: none;
       border: 1px solid var(--border);
-      color: var(--text-main);
-      font-weight: 900;
-      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
     }
+    .type-W { color: var(--legs); }
+    .type-D { color: var(--pull); }
+    .type-F { color: var(--push); }
 
-    .type-W { color: #facc15; border-color: #854d0e; }
-    .type-D { color: #c084fc; border-color: #6b21a8; }
-    .type-F { color: #f87171; border-color: #991b1b; }
-
-    /* 16px font prevents iOS/Android auto-zoom on tap */
+    /* 16px font prevents iOS auto-zoom on focus */
     .mob-input {
       width: 100%;
-      height: 36px;
+      height: 38px;
       background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
       color: var(--text-main);
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
       text-align: center;
     }
+    .mob-input::placeholder { color: #918f87; font-weight: 400; } /* 5.0:1 on the input */
+    .mob-input:focus { outline: none; border-color: var(--text-muted); }
+    textarea.mob-input { font-weight: 400; }
+    select.mob-input { text-align: left; }
 
-    .mob-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
+    /* A drawn checkbox: the native one is a bright white square on a dark page. */
     .mob-check {
-      width: 24px;
-      height: 24px;
-      accent-color: var(--accent);
-      margin: 0 auto;
+      -webkit-appearance: none; appearance: none;
+      width: 26px; height: 26px; margin: 0 auto; border-radius: 7px;
+      border: 1.5px solid var(--rest); background: none; display: block;
+    }
+    .mob-check:checked {
+      border-color: var(--accent);
+      background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2306140d%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M5.5 12.5l4.2 4.2L18.5 8%27/%3E%3C/svg%3E") center / 18px no-repeat;
     }
 
-    .del-set-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
+    .del-set-btn { background: transparent; border: none; color: var(--text-muted); font-size: 0.95rem; min-height: 32px; }
 
-    .ex-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-    }
+    .ex-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
 
-    .btn {
-      border: none;
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      font-weight: 800;
-    }
+    /* ---------- Buttons ---------- */
+    .btn { border: 1px solid transparent; border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; font-weight: 600; }
+    .btn-dark { background: none; color: var(--text-main); border-color: var(--border); }
+    .btn-green { background: var(--accent); color: var(--accent-ink); }
+    .btn-quiet { background: none; border-color: transparent; color: var(--text-muted); }
+    .btn:active { opacity: 0.7; }
 
-    .btn-dark {
-      background: var(--bg-input);
-      color: var(--text-main);
-      border: 1px solid var(--border);
-    }
+    /* ---------- Nutrition ---------- */
+    .macro-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-bottom: 4px; }
+    .macro-lbl { font-size: 0.75rem; color: var(--text-muted); }
+    .macro-val { font-size: 1.05rem; font-weight: 600; margin: 1px 0 6px; font-variant-numeric: tabular-nums; }
 
-    .btn-green {
-      background: var(--accent);
-      color: #042f2e;
-    }
-
-    /* Nutrition & Macro Cards */
-    .macro-grid-2x2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .macro-box {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-    }
-
-    .food-chips-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-
+    .food-chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .food-chips-scroll::-webkit-scrollbar { display: none; }
     .food-chip-btn {
       flex: 0 0 auto;
       background: var(--bg-input);
-      border: 1px solid var(--border);
+      border: none;
       color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
       text-align: left;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
     }
+    .food-chip-btn strong { font-weight: 500; }
+    .food-chip-btn small { display: block; color: var(--text-muted); font-size: 0.72rem; margin-top: 2px; }
 
-    .food-chip-btn small {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.68rem;
-      margin-top: 2px;
-    }
+    .list-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .list-row:last-child { border-bottom: none; }
+    .list-row small { color: var(--text-muted); font-size: 0.76rem; }
+    .list-row .num { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .empty-note { font-size: 0.82rem; color: var(--text-muted); }
 
-    /* Bottom Fixed App Navigation Bar */
+    /* ---------- Bottom navigation: solid bar, line icons ---------- */
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 68px;
-      background: rgba(19, 27, 46, 0.98);
-      backdrop-filter: blur(12px);
+      height: 64px;
+      background: var(--bg-main);
       border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* SPOTTER HOOK: 5th tab */
+      grid-template-columns: repeat(5, 1fr);
       z-index: 200;
       padding-bottom: env(safe-area-inset-bottom);
+      box-sizing: content-box;
     }
-
     .nav-item {
       background: transparent;
       border: none;
@@ -537,171 +369,182 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      font-size: 0.7rem;
-      font-weight: 700;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 500;
     }
+    .nav-item .ic { width: 22px; height: 22px; }
+    .nav-item.active { color: var(--accent); }
 
-    .nav-item.active {
-      color: var(--accent);
-    }
-
-    .nav-icon {
-      font-size: 1.2rem;
-    }
-
-    /* Slide-Up Mobile Bottom Sheet Modal */
+    /* ---------- Bottom sheet ---------- */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, 0.6);
       z-index: 300;
       display: none;
       align-items: flex-end;
       justify-content: center;
     }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
+    .modal-backdrop.open { display: flex; }
     .modal-sheet {
       background: var(--bg-card);
-      border-top: 1px solid var(--border);
-      border-radius: 18px 18px 0 0;
+      border-radius: 14px 14px 0 0;
       width: 100%;
       max-width: 600px;
-      padding: 18px;
+      padding: 10px 16px 18px;
     }
-
-    .form-group {
-      margin-bottom: 10px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      font-weight: 700;
-    }
+    .modal-sheet::before { content: ""; display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 12px; }
+    .sheet-title { font-weight: 600; font-size: 1rem; margin-bottom: 12px; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
 
     /* ==========================================================
-       SPOTTER HOOK: styles for the new Spotter UI.
-       Reuses the colour variables and card/btn classes above.
+       SPOTTER HOOK: styles for the Spotter UI
        ========================================================== */
     .sp-hidden { display: none !important; }
     .sp-btn { min-height: 44px; padding: 10px 14px; }
     .sp-in { height: 44px; }
     .sp-left { text-align: left; padding: 0 10px; }
-    .sp-lbl { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; }
+    .sp-lbl { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
     .sp-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .sp-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* A status line: a solid dot plus words. No tinted pill. */
     .sp-chip {
-      display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
-      padding: 6px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 800;
-      border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main);
+      display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+      padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.86rem; font-weight: 600;
+      border: 1px solid var(--border); background: none; color: var(--text-main); text-align: left;
     }
-    .sp-green { background: var(--accent-dim); border-color: var(--accent); color: #6ee7b7; }
-    .sp-amber { background: rgba(245, 158, 11, 0.16); border-color: var(--legs); color: #fcd34d; }
-    .sp-red { background: rgba(239, 68, 68, 0.16); border-color: var(--push); color: #fca5a5; }
-    .sp-blue { background: rgba(59, 130, 246, 0.16); border-color: var(--pull); color: #93c5fd; }
-    .sp-grey { color: var(--text-muted); }
+    .sp-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--rest); }
+    .sp-chip .sp-meta { font-weight: 400; color: var(--text-muted); }
+    .sp-green::before { background: var(--accent); }
+    .sp-amber::before { background: var(--legs); }
+    .sp-red::before { background: var(--push); }
+    .sp-blue::before { background: var(--pull); }
+    .sp-grey { color: var(--text-muted); font-weight: 500; }
+    .sp-grey::before { background: none; border: 1.5px solid var(--rest); }
+
     .sp-ready { margin-bottom: 10px; }
     .sp-ready:empty { display: none; }
-    .sp-note { font-size: 0.76rem; color: var(--text-muted); line-height: 1.45; margin-top: 6px; }
-    .sp-low { font-size: 0.76rem; color: #fcd34d; line-height: 1.45; margin-top: 6px; }
+    .sp-note { font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; margin-top: 6px; }
+    .sp-low { font-size: 0.8rem; color: var(--legs); line-height: 1.45; margin-top: 6px; }
     .sp-low:empty { display: none; }
-    .sp-kicker { font-size: 0.66rem; font-weight: 900; letter-spacing: 0.9px; text-transform: uppercase; color: var(--accent); }
-    .sp-title { font-weight: 800; font-size: 0.95rem; }
+    .sp-kicker { font-size: 0.75rem; font-weight: 500; color: var(--text-muted); }
+    .sp-title { font-weight: 600; font-size: 0.98rem; }
+    .sp-h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+
+    /* A card that reports a state: the dot sits before its title. */
+    .sp-status .sp-title { display: flex; align-items: center; gap: 8px; }
+    .sp-status .sp-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--rest); }
+    .sp-tone-green .sp-title::before { background: var(--accent); }
+    .sp-tone-amber .sp-title::before { background: var(--legs); }
+    .sp-tone-red .sp-title::before { background: var(--push); }
+    .sp-tone-blue .sp-title::before { background: var(--pull); }
+
     .sp-row {
-      display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;
-      border-bottom: 1px solid var(--border); font-size: 0.82rem;
+      display: flex; justify-content: space-between; gap: 12px; padding: 9px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.85rem;
     }
     .sp-row > span:first-child { color: var(--text-muted); }
-    .sp-row > span:last-child { text-align: right; font-weight: 800; }
+    .sp-row > span:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
     .sp-formula {
-      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px; margin: 10px 0; font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 0.74rem; line-height: 1.5; white-space: pre-wrap; color: #a7f3d0;
+      background: var(--bg-input); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin: 12px 0; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.76rem; line-height: 1.55; white-space: pre-wrap; color: var(--text-main);
     }
     .sp-rpe-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
     .sp-rpe-btn {
-      min-height: 44px; border-radius: 10px; background: var(--bg-input);
-      border: 1px solid var(--border); color: var(--text-main); font-weight: 800; font-size: 0.92rem;
+      min-height: 44px; border-radius: var(--radius-sm); background: var(--bg-input);
+      border: none; color: var(--text-main); font-weight: 500; font-size: 0.95rem; font-variant-numeric: tabular-nums;
     }
-    .sp-rpe-btn.on { background: var(--accent); border-color: var(--accent); color: #042f2e; }
+    .sp-rpe-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
     .sp-banner {
-      background: var(--legs); color: #1c1300; font-weight: 900; font-size: 0.72rem;
-      letter-spacing: 1px; text-align: center; padding: 5px 8px; border-radius: 8px; margin-bottom: 8px;
+      background: var(--legs); color: #1c1300; font-weight: 600; font-size: 0.8rem;
+      text-align: center; padding: 6px 8px; margin: -8px -14px 8px;
     }
     .sp-warn {
-      background: rgba(239, 68, 68, 0.16); border: 1px solid var(--push); color: #fca5a5;
-      font-size: 0.76rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px;
+      background: var(--push); color: #1d0705; font-size: 0.8rem; font-weight: 600;
+      padding: 6px 12px; margin: -8px -14px 8px;
     }
     .sp-sheet {
       max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
-    .sp-sheet p { font-size: 0.84rem; line-height: 1.5; margin: 8px 0; }
-    .sp-sheet li { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); margin: 0 0 6px 18px; }
-    .sp-pipe-box {
-      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px 12px; font-size: 0.84rem; font-weight: 800;
-    }
-    .sp-pipe-box small { display: block; color: var(--text-muted); font-weight: 600; font-size: 0.74rem; margin-top: 2px; }
-    .sp-pipe-arrow { text-align: center; color: var(--accent); font-weight: 900; line-height: 1.2; }
-    .sp-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .sp-item-main { flex: 1; min-width: 0; font-size: 0.84rem; font-weight: 700; }
-    .sp-item-main small { display: block; color: var(--text-muted); font-weight: 500; font-size: 0.72rem; margin-top: 2px; }
+    .sp-sheet p { font-size: 0.88rem; line-height: 1.5; margin: 8px 0; }
+    .sp-sheet li { font-size: 0.82rem; line-height: 1.5; color: var(--text-muted); margin: 0 0 6px 18px; }
+    .sp-item { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .sp-item-main { flex: 1; min-width: 0; font-size: 0.88rem; font-weight: 500; }
+    .sp-item-main small { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.76rem; margin-top: 2px; }
     .sp-chart svg { width: 100%; height: auto; display: block; }
-    .sp-brand { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-    .sp-brand strong { font-size: 0.86rem; letter-spacing: 2px; color: var(--accent); font-weight: 900; }
-    .sp-brand span { font-size: 0.7rem; color: var(--text-muted); }
+    .sp-brand { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+    .sp-brand strong { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+    .sp-brand span { font-size: 0.74rem; color: var(--text-muted); }
+    .sp-page-head { padding: 6px 2px 16px; }
+    .sp-steps { margin-top: 4px; }
+    .sp-steps > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+    .sp-steps > div:last-child { border-bottom: none; }
+    .sp-steps span:first-child { font-weight: 600; }
+    .sp-steps span:last-child { color: var(--text-muted); text-align: right; }
   </style>
 </head>
 <body>
 
-  <!-- TOP STICKY BAR: DATE & LIVE TIMERS -->
+  <!-- Line icons (original, drawn for this app). Used with <svg class="ic"><use href="#i-name"/></svg>. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-workout" viewBox="0 0 24 24"><path d="M3 9.5v5M6.5 6.5v11M17.5 6.5v11M21 9.5v5M6.5 12h11"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 12h16a8 8 0 0 1-16 0zM9.5 8c0-1.6 1.2-1.6 1.2-3.2M14 8c0-1.6 1.2-1.6 1.2-3.2"/></symbol>
+    <symbol id="i-tools" viewBox="0 0 24 24"><rect x="5.5" y="3.5" width="13" height="17" rx="2"/><path d="M8.5 7.5h7M8.7 12h.1M12 12h.1M15.3 12h.1M8.7 16h.1M12 16h.1M15.3 16h.1"/></symbol>
+    <symbol id="i-stats" viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20v-5"/></symbol>
+    <symbol id="i-spotter" viewBox="0 0 24 24"><path d="M3.5 9h17M7 5.5v7M17 5.5v7M8 19.5l4-3 4 3"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10.5h16M9 3.5v4M15 3.5v4"/></symbol>
+    <symbol id="i-stopwatch" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3.5h4"/></symbol>
+    <symbol id="i-rest" viewBox="0 0 24 24"><path d="M6.5 16v-5a5.5 5.5 0 0 1 11 0v5l1.5 2.2h-14zM10 20.5h4"/></symbol>
+    <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+    <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></symbol>
+    <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  </svg>
+
+  <!-- TOP BAR: DATE & TIMERS -->
   <header class="app-header">
     <!-- SPOTTER HOOK: demo-data banner and storage warning (hidden unless needed) -->
-    <div id="spDemoBanner" class="sp-banner sp-hidden">DEMO DATA · not your real logbook</div>
+    <div id="spDemoBanner" class="sp-banner sp-hidden">Demo data. Not your real logbook.</div>
     <div id="spStoreWarn" class="sp-warn sp-hidden"></div>
     <!-- SPOTTER HOOK: app name -->
-    <div class="sp-brand"><strong>SPOTTER</strong><span>Your logbook is the wearable.</span></div>
+    <div class="sp-brand"><strong>Spotter</strong><span>Your logbook is the wearable.</span></div>
     <div class="header-top">
-      <button class="date-trigger-btn" onclick="toggleCalendarDrawer()">
-        <span>📅</span>
+      <button class="date-trigger-btn" onclick="toggleCalendarDrawer()" aria-label="Open calendar">
+        <svg class="ic"><use href="#i-calendar"/></svg>
         <span id="topDateText">Today</span>
-        <span style="font-size:0.7rem; color:var(--accent);">▼</span>
+        <svg class="ic ic-chev"><use href="#i-chev-down"/></svg>
       </button>
 
       <div class="timer-pills">
-        <div class="pill-timer" onclick="toggleWorkoutTimer()">
-          <span>⏱</span>
+        <button class="pill-timer" onclick="toggleWorkoutTimer()" aria-label="Session stopwatch, start or pause">
+          <svg class="ic"><use href="#i-stopwatch"/></svg>
           <span id="topStopwatch">00:00</span>
-        </div>
-        <div class="pill-timer pill-rest" onclick="startRestTimer(90)">
-          <span>🔔</span>
+        </button>
+        <button class="pill-timer pill-rest" onclick="startRestTimer(90)" aria-label="Start 90 second rest timer">
+          <svg class="ic"><use href="#i-rest"/></svg>
           <span id="topRestTimer">01:30</span>
-        </div>
+        </button>
       </div>
     </div>
 
-    <!-- Collapsible Interactive Calendar -->
+    <!-- Collapsible calendar -->
     <div class="calendar-drawer" id="calDrawer">
       <div class="cal-nav">
-        <button onclick="changeMonth(-1)">◀</button>
-        <div style="font-weight:800; font-size:0.95rem;" id="calMonthTitle">Month</div>
-        <button onclick="changeMonth(1)">▶</button>
+        <button onclick="changeMonth(-1)" aria-label="Previous month"><svg class="ic"><use href="#i-chev-left"/></svg></button>
+        <div style="font-weight:600; font-size:0.95rem;" id="calMonthTitle">Month</div>
+        <button onclick="changeMonth(1)" aria-label="Next month"><svg class="ic"><use href="#i-chev-right"/></svg></button>
       </div>
       <div class="cal-weekdays">
         <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
-        <span style="font-size:0.72rem; color:var(--text-muted);">Tap any date to load or log</span>
-        <button class="btn btn-dark" style="padding:5px 10px; font-size:0.72rem;" onclick="jumpToToday()">Jump to Today</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <span class="empty-note">Tap a date to view or log it</span>
+        <button class="btn btn-dark" onclick="jumpToToday()">Today</button>
       </div>
     </div>
   </header>
@@ -712,7 +555,7 @@
          VIEW 1: WORKOUT SPLIT TRACKER
          ========================================== -->
     <section id="view-workout" class="view-section active">
-      <!-- Swipeable Split Selector -->
+      <!-- Split selector -->
       <div class="split-scroll" id="splitSelectorRow">
         <button class="split-chip" onclick="changeDaySplit('push1')">Push 1</button>
         <button class="split-chip" onclick="changeDaySplit('pull1')">Pull 1</button>
@@ -720,17 +563,17 @@
         <button class="split-chip" onclick="changeDaySplit('push2')">Push 2</button>
         <button class="split-chip" onclick="changeDaySplit('pull2')">Pull 2</button>
         <button class="split-chip" onclick="changeDaySplit('legs2')">Legs 2</button>
-        <button class="split-chip" onclick="changeDaySplit('rest')">Rest Day</button>
+        <button class="split-chip" onclick="changeDaySplit('rest')">Rest day</button>
       </div>
 
       <!-- SPOTTER HOOK: ACT II Exam-Week Autopilot card (shown only when there is something to say) -->
       <div id="spAutopilot"></div>
 
-      <!-- Daily Performance Summary -->
+      <!-- Daily summary -->
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-weight:800; font-size:0.88rem;" id="splitTitleBanner">Push 1</span>
-          <span style="font-weight:900; font-size:0.88rem; color:var(--accent);" id="scoreBanner">0% Done</span>
+        <div class="card-head">
+          <span class="card-title" id="splitTitleBanner">Push 1</span>
+          <span class="empty-note" id="scoreBanner">0% Done</span>
         </div>
 
         <div class="stats-strip">
@@ -748,35 +591,35 @@
           </div>
           <div class="stat-mini">
             <div class="stat-mini-lbl">Burned</div>
-            <div class="stat-mini-val" id="statBurn" style="color:var(--cal);">0</div>
+            <div class="stat-mini-val" id="statBurn">0</div>
           </div>
         </div>
 
         <div class="prog-bg"><div class="prog-fill" id="workoutProgFill"></div></div>
       </div>
 
-      <!-- Exercises List -->
+      <!-- Exercises list -->
       <div id="exercisesList"></div>
 
-      <!-- Bottom Day Controls -->
+      <!-- Session details -->
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-weight:800; font-size:0.88rem;">Session Details</span>
-          <button class="btn btn-green" onclick="openAddExerciseModal()">+ Add Exercise</button>
+        <div class="card-head">
+          <span class="card-title">Session details</span>
+          <button class="btn btn-green" onclick="openAddExerciseModal()">Add exercise</button>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Duration (min)</label>
+            <label class="field-label" for="minsInput">Duration (min)</label>
             <input type="number" id="minsInput" class="mob-input sp-in" placeholder="0" oninput="saveMins(this.value)" />
           </div>
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Bodyweight (kg)</label>
+            <label class="field-label" for="bwInput">Bodyweight (kg)</label>
             <input type="number" step="0.1" id="bwInput" class="mob-input sp-in" placeholder="kg" oninput="saveBw(this.value)" />
           </div>
           <!-- SPOTTER HOOK: last night's sleep. The three inputs in this row are 44px tall (sp-in) so they line up. -->
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Sleep last night (h)</label>
+            <label class="field-label" for="spSleepInput">Sleep last night (h)</label>
             <input type="number" step="0.5" min="0" max="14" id="spSleepInput" class="mob-input sp-in" placeholder="h" oninput="SpotterUI.saveSleep(this.value)" />
           </div>
         </div>
@@ -784,7 +627,8 @@
         <!-- SPOTTER HOOK: session RPE chips (shown once the session has started) -->
         <div id="spSessionRpe"></div>
 
-        <textarea id="notesInput" class="mob-input" style="height:64px; padding:8px; text-align:left; font-size:14px;" placeholder="Notes, PRs, tricep variations, or leg exercises..." oninput="saveNotes(this.value)"></textarea>
+        <label class="field-label" for="notesInput">Notes</label>
+        <textarea id="notesInput" class="mob-input" style="height:64px; padding:8px 10px; text-align:left; font-size:16px;" oninput="saveNotes(this.value)"></textarea>
       </div>
     </section>
 
@@ -796,55 +640,55 @@
       <div id="spLowIntake"></div>
 
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-weight:800;">🔥 Daily Calories & Macros</span>
-          <button class="btn btn-dark" onclick="openMacroModal()">⚙️ Targets</button>
+        <div class="card-head">
+          <span class="card-title">Calories and macros</span>
+          <button class="btn btn-dark" onclick="openMacroModal()">Targets</button>
         </div>
 
         <div class="macro-grid-2x2">
-          <div class="macro-box">
-            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">CALORIES</div>
-            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="calText">0 / 2500</div>
+          <div>
+            <div class="macro-lbl">Calories</div>
+            <div class="macro-val" id="calText">0 / 2500</div>
             <div class="prog-bg"><div class="prog-fill" id="calBar" style="background:var(--cal);"></div></div>
           </div>
-          <div class="macro-box">
-            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">PROTEIN</div>
-            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="proText">0 / 160g</div>
+          <div>
+            <div class="macro-lbl">Protein</div>
+            <div class="macro-val" id="proText">0 / 160g</div>
             <div class="prog-bg"><div class="prog-fill" id="proBar" style="background:var(--accent);"></div></div>
           </div>
-          <div class="macro-box">
-            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">CARBS</div>
-            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="carbText">0 / 280g</div>
+          <div>
+            <div class="macro-lbl">Carbs</div>
+            <div class="macro-val" id="carbText">0 / 280g</div>
             <div class="prog-bg"><div class="prog-fill" id="carbBar" style="background:var(--pull);"></div></div>
           </div>
-          <div class="macro-box">
-            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">FATS</div>
-            <div style="font-size:1.1rem; font-weight:900; margin:3px 0;" id="fatText">0 / 70g</div>
+          <div>
+            <div class="macro-lbl">Fats</div>
+            <div class="macro-val" id="fatText">0 / 70g</div>
             <div class="prog-bg"><div class="prog-fill" id="fatBar" style="background:var(--legs);"></div></div>
           </div>
         </div>
 
-        <div style="font-size:0.78rem; font-weight:800; color:var(--accent); margin-bottom:6px;">⚡ 1-TAP GYM FOODS (SWIPE →):</div>
+        <div class="sub-label">Quick foods</div>
         <div class="food-chips-scroll" id="quickFoodsRow"></div>
 
-        <div style="font-size:0.78rem; font-weight:800; margin:10px 0 6px;">➕ ADD CUSTOM FOOD:</div>
+        <div class="sub-label">Add a custom food</div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:8px;">
-          <input type="text" id="fName" class="mob-input" style="grid-column: span 2; text-align:left; padding:0 10px;" placeholder="Food name (e.g. Chicken Rice)" />
+          <input type="text" id="fName" class="mob-input sp-left" style="grid-column: span 2;" placeholder="Food name" />
           <input type="number" id="fCal" class="mob-input" placeholder="Calories" />
           <input type="number" id="fPro" class="mob-input" placeholder="Protein (g)" />
           <input type="number" id="fCarb" class="mob-input" placeholder="Carbs (g)" />
           <input type="number" id="fFat" class="mob-input" placeholder="Fat (g)" />
         </div>
-        <button class="btn btn-green" style="width:100%; padding:10px;" onclick="addCustomFood()">+ Log Meal</button>
+        <button class="btn btn-dark sp-btn" style="width:100%;" onclick="addCustomFood()">Log food</button>
       </div>
 
       <!-- SPOTTER HOOK: ACT III Protein on a Hostel Budget -->
       <div class="card" id="spSolverCard">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-          <span style="font-weight:800;">🥚 Protein on a Hostel Budget</span>
+        <div class="card-head" style="margin-bottom:2px;">
+          <span class="card-title">Protein on a Hostel Budget</span>
           <button class="btn btn-dark sp-btn" onclick="SpotterUI.whySolver()">Why?</button>
         </div>
-        <div class="sp-note" style="margin:2px 0 10px;">Closes your protein gap at the lowest cost.</div>
+        <div class="sp-note" style="margin:0 0 12px;">Closes your protein gap at the lowest cost.</div>
         <div class="sp-grid3">
           <div>
             <label class="sp-lbl" for="spGap">Protein gap (g)</label>
@@ -856,7 +700,7 @@
           </div>
           <div>
             <span class="sp-lbl">Calories left</span>
-            <div id="spCalLeft" class="mob-input sp-in" style="display:flex; align-items:center; justify-content:center;">–</div>
+            <div id="spCalLeft" class="mob-input sp-in" style="display:flex; align-items:center; justify-content:center; background:none; border-color:var(--border);">–</div>
           </div>
         </div>
         <div id="spSolverHint" class="sp-note"></div>
@@ -864,23 +708,23 @@
         <div id="spSolverResult"></div>
       </div>
 
-      <!-- Logged Meals List -->
+      <!-- Logged foods -->
       <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">🍽 Today's Logged Foods</div>
+        <div class="card-title" style="margin-bottom:4px;">Logged foods</div>
         <div id="loggedFoodsList"></div>
       </div>
 
-      <!-- Water & Supplements Card -->
+      <!-- Water & supplements -->
       <div class="card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <span style="font-weight:800;">💧 Hydration & Stack</span>
-          <span id="waterText" style="color:#38bdf8; font-weight:800;">0 / 3500 ml</span>
+        <div class="card-head">
+          <span class="card-title">Water and supplements</span>
+          <span id="waterText" class="empty-note" style="font-variant-numeric:tabular-nums;">0 / 3500 ml</span>
         </div>
-        <div class="prog-bg" style="margin-bottom:10px;"><div class="prog-fill" id="waterBar" style="background:#06b6d4;"></div></div>
-        <div style="display:flex; gap:6px; margin-bottom:12px;">
-          <button class="btn btn-dark" style="flex:1;" onclick="addWater(250)">+250ml</button>
-          <button class="btn btn-dark" style="flex:1;" onclick="addWater(500)">+500ml</button>
-          <button class="btn btn-dark" onclick="addWater(-250)">-250ml</button>
+        <div class="prog-bg" style="margin-bottom:12px;"><div class="prog-fill" id="waterBar" style="background:var(--water);"></div></div>
+        <div style="display:flex; gap:6px; margin-bottom:14px;">
+          <button class="btn btn-dark" style="flex:1;" onclick="addWater(250)">+250 ml</button>
+          <button class="btn btn-dark" style="flex:1;" onclick="addWater(500)">+500 ml</button>
+          <button class="btn btn-quiet" onclick="addWater(-250)">−250 ml</button>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:6px;" id="suppRow"></div>
       </div>
@@ -891,49 +735,49 @@
          ========================================== -->
     <section id="view-tools" class="view-section">
       <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">⏱ Rest & Session Timer Controls</div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
-          <button class="btn btn-green" onclick="toggleWorkoutTimer()">Start/Pause Session</button>
-          <button class="btn btn-dark" onclick="saveTimerToMins()">Log Session Mins</button>
-          <button class="btn btn-dark" onclick="resetWorkoutTimer()">Reset</button>
+        <div class="card-title" style="margin-bottom:10px;">Timers</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn btn-green" onclick="toggleWorkoutTimer()">Start / pause session</button>
+          <button class="btn btn-dark" onclick="saveTimerToMins()">Log minutes</button>
+          <button class="btn btn-quiet" onclick="resetWorkoutTimer()">Reset</button>
         </div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">Quick Rest Countdown:</div>
+        <div class="sub-label">Rest countdown</div>
         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;">
-          <button class="btn btn-dark" onclick="startRestTimer(60)">60s</button>
-          <button class="btn btn-dark" onclick="startRestTimer(90)">90s</button>
-          <button class="btn btn-dark" onclick="startRestTimer(120)">2m</button>
-          <button class="btn btn-dark" onclick="startRestTimer(180)">3m</button>
+          <button class="btn btn-dark" onclick="startRestTimer(60)">60 s</button>
+          <button class="btn btn-dark" onclick="startRestTimer(90)">90 s</button>
+          <button class="btn btn-dark" onclick="startRestTimer(120)">2 min</button>
+          <button class="btn btn-dark" onclick="startRestTimer(180)">3 min</button>
         </div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">🏋️ Barbell Plate Calculator (20kg Bar)</div>
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-          <span>Target Total Weight (kg):</span>
-          <input type="number" id="plateInput" value="100" step="2.5" class="mob-input" style="max-width:100px;" oninput="calcPlates()" />
+        <div class="card-title" style="margin-bottom:10px;">Plate calculator (20 kg bar)</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+          <label class="field-label" for="plateInput" style="margin:0;">Total weight (kg)</label>
+          <input type="number" id="plateInput" value="100" step="2.5" class="mob-input" style="max-width:110px;" oninput="calcPlates()" />
         </div>
-        <div id="plateResultText" style="padding:12px; background:var(--bg-input); border-radius:10px; font-weight:800; color:var(--accent); text-align:center;"></div>
+        <div id="plateResultText" style="padding:10px 0 0; border-top:1px solid var(--border); font-weight:600;"></div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">📈 1-Rep Max (e1RM) Calculator</div>
+        <div class="card-title" style="margin-bottom:10px;">1RM calculator</div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Weight (kg)</label>
+            <label class="field-label" for="rmW">Weight (kg)</label>
             <input type="number" id="rmW" value="80" class="mob-input" oninput="calc1RM()" />
           </div>
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">Reps</label>
+            <label class="field-label" for="rmR">Reps</label>
             <input type="number" id="rmR" value="8" class="mob-input" oninput="calc1RM()" />
           </div>
           <!-- SPOTTER HOOK: RPE input for the RPE-adjusted estimate -->
           <div>
-            <label style="font-size:0.72rem; color:var(--text-muted);">RPE (6–10)</label>
+            <label class="field-label" for="rmP">RPE (6–10)</label>
             <input type="number" id="rmP" value="8" step="0.5" min="6" max="10" class="mob-input" oninput="calc1RM()" />
           </div>
         </div>
-        <div id="rmOut" style="font-size:1.15rem; font-weight:900; color:var(--accent); text-align:center;">Est. 1RM: 101.3 kg</div>
-        <div class="sp-note" style="text-align:center;">Epley: weight × (1 + reps / 30). RPE-adjusted: weight × (1 + (reps + 10 − RPE) / 30).</div>
+        <div id="rmOut" style="font-size:1.05rem; font-weight:600; padding-top:10px; border-top:1px solid var(--border); font-variant-numeric:tabular-nums;">Est. 1RM: 101.3 kg</div>
+        <div class="sp-note">Epley: weight × (1 + reps / 30). RPE-adjusted: weight × (1 + (reps + 10 − RPE) / 30).</div>
       </div>
     </section>
 
@@ -942,26 +786,26 @@
          ========================================== -->
     <section id="view-stats" class="view-section">
       <div class="card">
-        <div style="font-weight:800; margin-bottom:10px;">💪 Last 7 Days Working Sets</div>
+        <div class="card-title" style="margin-bottom:10px;">Working sets, last 7 days</div>
         <div id="weeklyVolList"></div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800; margin-bottom:10px;">🏆 All-Time Personal Records (Best e1RM)</div>
+        <div class="card-title" style="margin-bottom:4px;">Personal records (best e1RM)</div>
         <div id="prList"></div>
       </div>
 
       <!-- SPOTTER HOOK: ACT II weekly training load chart -->
       <div class="card">
-        <div style="font-weight:800; margin-bottom:4px;">📊 Weekly Training Load</div>
+        <div class="card-title" style="margin-bottom:4px;">Weekly training load</div>
         <div id="spLoadChart" class="sp-chart"></div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">💾 Backup & Restore Data</div>
+        <div class="card-title" style="margin-bottom:10px;">Backup and restore</div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-green sp-btn" style="flex:1;" onclick="exportBackup()">Download Backup</button>
-          <button class="btn btn-dark sp-btn" style="flex:1;" onclick="document.getElementById('restoreInput').click()">Restore File</button>
+          <button class="btn btn-green sp-btn" style="flex:1;" onclick="exportBackup()">Download backup</button>
+          <button class="btn btn-dark sp-btn" style="flex:1;" onclick="document.getElementById('restoreInput').click()">Restore file</button>
           <input type="file" id="restoreInput" style="display:none" accept=".json,application/json" onchange="importBackup(event)" />
         </div>
         <!-- SPOTTER HOOK: last-backup line and undo-import button -->
@@ -978,13 +822,13 @@
 
   </div>
 
-  <!-- SLIDE-UP MODAL: ADD CUSTOM EXERCISE -->
+  <!-- SHEET: ADD CUSTOM EXERCISE -->
   <div class="modal-backdrop" id="addExModal">
     <div class="modal-sheet">
-      <div style="font-weight:800; font-size:1rem; margin-bottom:12px;">+ Add Movement to Today</div>
+      <div class="sheet-title">Add an exercise</div>
       <div class="form-group">
-        <label>Muscle Group</label>
-        <select id="newExMuscle" class="mob-input" style="padding:0 10px;">
+        <label for="newExMuscle">Muscle group</label>
+        <select id="newExMuscle" class="mob-input sp-in" style="padding:0 10px;">
           <option value="Chest">Chest</option>
           <option value="Shoulders">Shoulders</option>
           <option value="Triceps">Triceps</option>
@@ -994,31 +838,31 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Exercise Name</label>
-        <input type="text" id="newExName" class="mob-input" placeholder="e.g. Barbell Squat" />
+        <label for="newExName">Exercise name</label>
+        <input type="text" id="newExName" class="mob-input sp-in sp-left" placeholder="e.g. Barbell Squat" />
       </div>
       <div style="display:flex; gap:8px; margin-top:14px;">
-        <button class="btn btn-dark" style="flex:1; padding:12px;" onclick="closeModals()">Cancel</button>
-        <button class="btn btn-green" style="flex:1; padding:12px;" onclick="confirmAddExercise()">Add</button>
+        <button class="btn btn-dark sp-btn" style="flex:1;" onclick="closeModals()">Cancel</button>
+        <button class="btn btn-green sp-btn" style="flex:1;" onclick="confirmAddExercise()">Add</button>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE-UP MODAL: EDIT MACRO TARGETS -->
+  <!-- SHEET: EDIT MACRO TARGETS -->
   <div class="modal-backdrop" id="macroModal">
     <div class="modal-sheet">
-      <div style="font-weight:800; font-size:1rem; margin-bottom:12px;">⚙️ Daily Calorie & Macro Targets</div>
+      <div class="sheet-title">Daily targets</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div class="form-group"><label>Calories (kcal)</label><input type="number" id="goalCal" class="mob-input" oninput="SpotterUI.floorWarn()" /></div>
-        <div class="form-group"><label>Protein (g)</label><input type="number" id="goalPro" class="mob-input" /></div>
-        <div class="form-group"><label>Carbs (g)</label><input type="number" id="goalCarb" class="mob-input" /></div>
-        <div class="form-group"><label>Fats (g)</label><input type="number" id="goalFat" class="mob-input" /></div>
+        <div class="form-group"><label>Calories (kcal)</label><input type="number" id="goalCal" class="mob-input sp-in" oninput="SpotterUI.floorWarn()" /></div>
+        <div class="form-group"><label>Protein (g)</label><input type="number" id="goalPro" class="mob-input sp-in" /></div>
+        <div class="form-group"><label>Carbs (g)</label><input type="number" id="goalCarb" class="mob-input sp-in" /></div>
+        <div class="form-group"><label>Fats (g)</label><input type="number" id="goalFat" class="mob-input sp-in" /></div>
       </div>
       <!-- SPOTTER HOOK: gentle warning when the calorie goal is under the floor -->
       <div id="spFloorWarn" class="sp-low"></div>
       <div style="display:flex; gap:8px; margin-top:14px;">
-        <button class="btn btn-dark" style="flex:1; padding:12px;" onclick="closeModals()">Cancel</button>
-        <button class="btn btn-green" style="flex:1; padding:12px;" onclick="saveMacroGoals()">Save Goals</button>
+        <button class="btn btn-dark sp-btn" style="flex:1;" onclick="closeModals()">Cancel</button>
+        <button class="btn btn-green sp-btn" style="flex:1;" onclick="saveMacroGoals()">Save</button>
       </div>
     </div>
   </div>
@@ -1028,27 +872,27 @@
     <div class="modal-sheet sp-sheet"><div id="spModalBody"></div></div>
   </div>
 
-  <!-- FIXED BOTTOM APP BAR -->
+  <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="switchView('workout', this)">
-      <span class="nav-icon">🏋️‍♂️</span>
+      <svg class="ic"><use href="#i-workout"/></svg>
       <span>Workout</span>
     </button>
     <button class="nav-item" onclick="switchView('nutrition', this)">
-      <span class="nav-icon">🔥</span>
+      <svg class="ic"><use href="#i-food"/></svg>
       <span>Calories</span>
     </button>
     <button class="nav-item" onclick="switchView('tools', this)">
-      <span class="nav-icon">🧮</span>
+      <svg class="ic"><use href="#i-tools"/></svg>
       <span>Tools</span>
     </button>
     <button class="nav-item" onclick="switchView('stats', this)">
-      <span class="nav-icon">📊</span>
+      <svg class="ic"><use href="#i-stats"/></svg>
       <span>PRs & Vol</span>
     </button>
     <!-- SPOTTER HOOK: 5th tab -->
     <button class="nav-item" id="navSpotter" onclick="switchView('spotter', this)">
-      <span class="nav-icon">🤝</span>
+      <svg class="ic"><use href="#i-spotter"/></svg>
       <span>Spotter</span>
     </button>
   </nav>
@@ -1423,9 +1267,9 @@
       listEl.innerHTML = "";
 
       if (day.split === "rest") {
-        listEl.innerHTML = `<div class="card" style="text-align:center; padding:26px 14px;">
-          <h3>🧘‍♂️ Rest & Muscle Growth Day</h3>
-          <p style="font-size:0.82rem; color:var(--text-muted); margin-top:6px;">Switch to the <strong>Calories</strong> tab below to hit your protein & hydration goals!</p>
+        listEl.innerHTML = `<div class="card">
+          <div class="card-title">Rest day</div>
+          <p class="sp-note">No lifting planned. Food and water are in the Calories tab.</p>
         </div>`;
         updateSummaryStrip();
         if (window.SpotterUI) SpotterUI.renderWorkoutExtras(); // SPOTTER HOOK
@@ -1438,7 +1282,7 @@
           lastMuscle = ex.muscle;
           const mHeader = document.createElement("div");
           mHeader.className = "muscle-tag";
-          mHeader.textContent = `⚡ ${lastMuscle}`;
+          mHeader.textContent = lastMuscle;
           listEl.appendChild(mHeader);
         }
 
@@ -1465,22 +1309,22 @@
         card.innerHTML = `
           <input type="text" class="ex-name-input" value="${ex.name}" onchange="editExName(${exIdx}, this.value)" />
           <div class="ex-meta-row">
-            <span>Target Reps: <strong>${ex.targetReps}</strong></span>
-            <span>Target PE: <strong>${ex.targetRpe}</strong></span>
+            <span>Target reps <strong>${ex.targetReps}</strong></span>
+            <span>Target PE <strong>${ex.targetRpe}</strong></span>
           </div>
           ${ghost ? `<div class="ghost-bar">
-            <span>👻 Last Best: <strong>${ghost.weight}kg × ${ghost.reps}</strong></span>
-            <button class="btn btn-dark" style="padding:3px 8px; font-size:0.7rem;" onclick="copyGhostSets(${exIdx})">Copy Weights</button>
+            <span>Last best <strong>${ghost.weight} kg × ${ghost.reps}</strong></span>
+            <button class="link-btn" onclick="copyGhostSets(${exIdx})">Copy weights</button>
           </div>` : ""}
           <div class="sp-ready" id="spReady-${exIdx}"></div><!-- SPOTTER HOOK: ACT I readiness chip -->
 
           <div class="set-header-grid">
-            <div>Set</div><div>kg</div><div>Reps</div><div>PE</div><div>✓</div><div></div>
+            <div>Set</div><div>kg</div><div>Reps</div><div>PE</div><div>Done</div><div></div>
           </div>
           ${rowsHtml}
           <div class="ex-actions">
-            <button class="btn btn-dark" onclick="addSet(${exIdx})">+ Add Set</button>
-            <button class="btn btn-dark" style="color:var(--text-muted);" onclick="deleteExercise(${exIdx})">Remove</button>
+            <button class="btn btn-dark" onclick="addSet(${exIdx})">Add set</button>
+            <button class="btn btn-quiet" onclick="deleteExercise(${exIdx})">Remove exercise</button>
           </div>
         `;
         listEl.appendChild(card);
@@ -1628,8 +1472,8 @@
     function initQuickFoods() {
       document.getElementById("quickFoodsRow").innerHTML = STAPLES.map((f, i) => `
         <button class="food-chip-btn" onclick="quickLogFood(${i})">
-          <strong>+ ${f.name}</strong>
-          <small>${f.cal} kcal • ${f.pro}g P</small>
+          <strong>${f.name}</strong>
+          <small>${f.cal} kcal · ${f.pro} g protein</small>
         </button>
       `).join("");
     }
@@ -1690,11 +1534,11 @@
 
       const fList = document.getElementById("loggedFoodsList");
       if (!day.foods.length) {
-        fList.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No meals logged yet today.</div>`;
+        fList.innerHTML = `<div class="empty-note">Nothing logged for this day yet.</div>`;
       } else {
         fList.innerHTML = day.foods.map((f, i) => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
-            <div><strong>${f.name}</strong><br/><small style="color:var(--text-muted);">${f.cal} kcal • ${f.pro}g P • ${f.carb}g C • ${f.fat}g F</small></div>
+          <div class="list-row">
+            <div><strong>${f.name}</strong><br/><small>${f.cal} kcal · ${f.pro} g protein · ${f.carb} g carbs · ${f.fat} g fat</small></div>
             <button class="del-set-btn" onclick="removeFood(${i})">✕</button>
           </div>
         `).join("");
@@ -1788,7 +1632,7 @@
         ? `RPE-adjusted e1RM: ${SpotterCore.e1rm(w, r, p).toFixed(1)} kg`
         : "RPE-adjusted e1RM needs RPE 6–10 and 1–12 reps";
       document.getElementById("rmOut").innerHTML =
-        `Est. 1RM (Epley): ${rm.toFixed(1)} kg<div style="font-size:0.95rem; color:#7dd3fc; margin-top:4px;">${adj}</div>`;
+        `Est. 1RM (Epley): ${rm.toFixed(1)} kg<div style="font-size:0.9rem; font-weight:400; color:var(--text-muted); margin-top:4px;">${adj}</div>`;
     }
 
     function renderStatsView() {
@@ -1805,8 +1649,8 @@
       }
       document.getElementById("weeklyVolList").innerHTML = Object.keys(vol).map(mus => `
         <div style="margin-bottom:8px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:3px;">
-            <span>${mus}</span><span style="color:var(--accent);">${vol[mus]} sets</span>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:5px;">
+            <span>${mus}</span><span style="color:var(--text-muted); font-variant-numeric:tabular-nums;">${vol[mus]} sets</span>
           </div>
           <div class="prog-bg"><div class="prog-fill" style="width:${Math.min(100, (vol[mus]/20)*100)}%;"></div></div>
         </div>
@@ -1827,11 +1671,11 @@
 
       const prArr = Object.entries(prs).sort((a, b) => b[1].e1rm - a[1].e1rm);
       document.getElementById("prList").innerHTML = prArr.length ? prArr.map(([name, p]) => `
-        <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
-          <div><strong>${name}</strong><br/><small style="color:var(--text-muted);">${p.w}kg × ${p.r} (${p.k})</small></div>
-          <div style="color:var(--accent); font-weight:900;">${Math.round(p.e1rm)} kg</div>
+        <div class="list-row">
+          <div><strong>${name}</strong><br/><small>${p.w} kg × ${p.r} · ${p.k}</small></div>
+          <div class="num">${Math.round(p.e1rm)} kg</div>
         </div>
-      `).join("") : `<div style="font-size:0.8rem; color:var(--text-muted);">Log and tick sets to see your PRs!</div>`;
+      `).join("") : `<div class="empty-note">Tick sets to see your records here.</div>`;
     }
 
     // SPOTTER HOOK: backup and restore now live in src/spotter-ui.js.

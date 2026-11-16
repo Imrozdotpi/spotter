@@ -9,20 +9,20 @@ Run these on the iPhone in Safari once Spotter is hosted. Tick each box. Where a
 ## 0. Before anything: protect your real logbook
 
 - [ ] Open your **current** tracker (the old address) in Safari.
-- [ ] Go to **PRs & Vol → Download Backup**. Confirm the file is saved in the Files app.
+- [ ] Go to **PRs & Vol → Download backup**. Confirm the file is saved in the Files app.
 - [ ] Send a copy of that file somewhere safe (your laptop or email to yourself).
 
 Do not skip this. Spotter at a new address starts empty; this file is how your history gets there.
 
 ## 1. First load
 
-- [ ] Open `SITE` in Safari. Expected: the header shows **SPOTTER · Your logbook is the wearable.** and five tabs at the bottom: Workout, Calories, Tools, PRs & Vol, Spotter.
+- [ ] Open `SITE` in Safari. Expected: the header shows **Spotter** and "Your logbook is the wearable." and five tabs at the bottom: Workout, Calories, Tools, PRs & Vol, Spotter.
 - [ ] Expected: no red warning bar at the top.
 - [ ] If Spotter is at the **same** address as the old tracker: your existing workouts are there. If it is at a **new** address: it is empty. Both are correct.
 
 ## 2. Bring your data across (only if it opened empty)
 
-- [ ] Spotter tab → Backup and restore → **Restore File** → choose the backup from step 0.
+- [ ] Spotter tab → Backup and restore → **Restore file** → choose the backup from step 0.
 - [ ] Expected: a sheet titled "Restore this backup?" showing the number of days and the first and last dates. Check they look right.
 - [ ] Tap **Replace my data**. Expected: "Backup restored".
 - [ ] Open the calendar and tap a few old dates. Expected: sets, weights, foods and notes are all there.
@@ -31,7 +31,7 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 
 ## 3. Install to the Home Screen and go offline
 
-- [ ] In Safari: Share → **Add to Home Screen**. Expected: the icon is an emerald barbell on navy, named "Spotter".
+- [ ] In Safari: Share → **Add to Home Screen**. Expected: the icon is a green barbell on near-black, named "Spotter".
 - [ ] Open Spotter from the Home Screen. **Check whether your data is there.** If it is empty, restore the backup again here (step 2). From now on, use only the Home Screen app.
 - [ ] Close the app. Turn on **Aeroplane Mode** (Wi-Fi off too).
 - [ ] Open Spotter from the Home Screen. Expected: it opens and works normally.
@@ -42,7 +42,7 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 
 - [ ] **Splits:** tap Pull 1, then back to the original split (on an empty test date, since changing split resets that day's exercises).
 - [ ] **Calendar:** open it, change month, pick a date, Jump to Today.
-- [ ] **Ghost bar:** an exercise you have done before shows "Last Best". **Copy Weights** fills the sets.
+- [ ] **Ghost bar:** an exercise you have done before shows "Last best". **Copy weights** fills the sets.
 - [ ] **Sets:** type weight, reps, PE; tick; the rest timer starts at 01:30; add a set; delete a set; cycle the type N → W → D → F.
 - [ ] **Add Exercise** and **Remove** work.
 - [ ] **Timers:** session stopwatch start/pause, Log Session Mins, Reset, the four rest buttons.
@@ -51,17 +51,17 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 - [ ] **Macros:** tap a quick food, add a custom food, remove one, change targets.
 - [ ] **Water** +250 / +500 / −250, and the **supplement** buttons toggle.
 - [ ] **PRs & Vol:** weekly sets per muscle and the PR list show.
-- [ ] **Download Backup** saves a file named `spotter-backup-…json`. Check it appears in Files. *(This download method was changed; make sure it works both in Safari and in the Home Screen app.)*
+- [ ] **Download backup** saves a file named `spotter-backup-…json`. Check it appears in Files. *(This download method was changed; make sure it works both in Safari and in the Home Screen app.)*
 
 ## 5. Demo mode
 
-- [ ] Spotter tab → **Turn demo mode on**. Expected: an amber **DEMO DATA · not your real logbook** bar on every tab.
+- [ ] Spotter tab → **Turn demo mode on**. Expected: an amber **Demo data. Not your real logbook.** bar on every tab.
 - [ ] Workout tab. Expected: an "Exam-Week Autopilot" card at the top, six weeks of history in the calendar.
 - [ ] Spotter tab → **Turn demo mode off**. Expected: the amber bar is gone and **your own data is exactly as you left it**. Check a date you know.
 
 ## 6. ACT I: readiness (in demo mode)
 
-- [ ] Turn demo mode on. Workout tab, first exercise. Expected: a green chip **● Go for a PR · 8 sessions · Why?** (the session count can differ).
+- [ ] Turn demo mode on. Workout tab, first exercise. Expected: a green chip **Go for a PR · 8 sessions · Why?** with a green dot (the session count can differ).
 - [ ] Tick the first set of the second exercise. Expected: amber **Normal day**.
 - [ ] Tick the first set of the third exercise. Expected: red **Drop a set**.
 - [ ] Tap a chip. Expected: a sheet with today's set, today's e1RM, predicted e1RM, difference in %, sessions used, the formula, and the list of sessions in the trend.
@@ -87,13 +87,13 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 - [ ] Tap **Find cheapest combo**. Expected: "Cheapest combo that closes your 40 g gap: ₹40." with 2 × 2 Boiled Eggs and 1 × Soya Chunks. *(These are SAMPLE prices.)*
 - [ ] Tap **Why?** Expected: the model in words, the inputs and the result.
 - [ ] Change budget to **20**. Tap Find again. Expected: "With ₹20 and 1090 kcal left, the most you can get is 26 g of your 40 g gap."
-- [ ] Set budget back to 60, Find, then **Log this combo**. Expected: the foods appear in "Today's Logged Foods" and the protein total rises by 50 g.
+- [ ] Set budget back to 60, Find, then **Log this combo**. Expected: the foods appear in "Logged foods" and the protein total rises by 50 g.
 - [ ] Spotter tab → Canteen catalog: change a price, tap **Edit** on an item and change its max servings, add a new item, delete it (two taps).
 
 ## 9. Safety (in demo mode)
 
-- [ ] Calories tab → ⚙️ Targets → set Calories to **1300**. Expected: a yellow note that the goal is under the 1500 kcal floor. Cancel.
-- [ ] Pick three past dates in a row. On each, remove foods until only two small ones remain (well under 1500 kcal in total). Return to today. Expected: a blue "A gentle note" card at the top of the Calories tab. Tap **Why?**
+- [ ] Calories tab → Targets → set Calories to **1300**. Expected: a yellow note that the goal is under the 1500 kcal floor. Cancel.
+- [ ] Pick three past dates in a row. On each, remove foods until only two small ones remain (well under 1500 kcal in total). Return to today. Expected: an "A gentle note" card with a blue dot at the top of the Calories tab. Tap **Why?**
 - [ ] Spotter tab → Safety and budget: type **900** as the floor. Expected: it changes to 1200.
 - [ ] Turn demo mode off.
 
@@ -107,7 +107,7 @@ Do not skip this. Spotter at a new address starts empty; this file is how your h
 
 ## 11. Backup round trip
 
-- [ ] Download Backup. Expected: Spotter tab shows "Last backup: today".
+- [ ] Download backup. Expected: Spotter tab shows "Last backup: today".
 - [ ] Add a test food. Restore the backup you just downloaded. Expected: the test food is gone.
 - [ ] Tap **Undo last import**. Expected: the test food is back. Remove it.
 - [ ] Try restoring a file that is not a backup (any other `.json`). Expected: "Backup not imported … Nothing was changed."

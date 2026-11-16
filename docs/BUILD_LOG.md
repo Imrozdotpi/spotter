@@ -242,3 +242,21 @@ Requested by Imroz: research which design elements make an interface look AI-gen
 - If the old look is preferred, `git revert` this one commit.
 
 **AI-generated:** the research summary, the redesign and this entry.
+
+## Demo and recording support (after the redesign)
+
+Requested by Imroz for the Stage 2 video: how to run it, fake history for the recording, and a workflow to record.
+
+**Built**
+- Read the AI-Innovex 2026 handbook (video 30 s to 2 min covering intro, Round 1 solution, live demo and AI vs human; PPT 6 to 8 slides; LinkedIn post; Stage 2 deadline 17 Nov 2026).
+- The seed history already existed as demo mode (42 days, separate storage, amber banner). No new data was needed. It was checked for today's date and produces: three verdicts on the first three lifts, an exam in 2 days, load ratio 1.39, sleep 5.8 h, and the poster case of 40 g short with ₹60 left, answered by ₹40 (2 x eggs + 1 x soya).
+- New URL shortcut in `src/spotter-ui.js`: `?demo=1`, `?demo=reset`, `?demo=off`. It only calls the existing demo toggle, so demo data still goes only to the `spotter_demo_*` keys.
+- `docs/DEMO_SCRIPT.md`: run options, the seed data, a pre-record checklist, a timed 1:47 script with narration, things to avoid, an AI-vs-human table, a LinkedIn draft and slide material. `docs/screenshots/load-chart.png` added.
+
+**Checks** (headless Chrome)
+- The whole recording flow was replayed: chips, Why? sheet, maintenance apply and exact undo, solver result, log combo (protein 120 to 170 of 160 g), load chart, brief. No errors.
+- `index.html` opened from `file://` with no server: the page and the exercises rendered.
+- With a fake real logbook stored, demo on, a planted edit, reset (edit gone) and off left the real data byte-identical.
+- Not verified: that the `?demo=` text disappears from the address bar afterwards, and anything on a real iPhone.
+
+**AI-generated:** the shortcut, the guide and this entry. The talking points are suggestions for Imroz to rewrite so that they are true.

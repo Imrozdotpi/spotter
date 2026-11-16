@@ -906,7 +906,23 @@
       }
     } catch (e) {}
     selectDate(activeDate); // redraw the tracker now that Spotter is ready
+    applyDemoParam();
     refresh();
+  }
+
+  // Shortcut for screen recordings: open the app with ?demo=1 (turn demo mode on),
+  // ?demo=reset (rebuild the demo data from scratch) or ?demo=off (back to real data).
+  // Demo mode only ever uses the separate spotter_demo_* keys, so this cannot touch the real logbook.
+  // The parameter is removed from the address afterwards so a reload does not repeat it.
+  function applyDemoParam() {
+    var q = null;
+    try { q = new URLSearchParams(location.search).get("demo"); } catch (e) { return; }
+    if (!q) return;
+    var on = SpotterStore.isDemo();
+    if (q === "off") { if (on) toggleDemo(); }
+    else if (q === "reset") { if (on) toggleDemo(); toggleDemo(); }
+    else if (q === "1" || q === "on") { if (!on) toggleDemo(); }
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
   }
 
   var api = {

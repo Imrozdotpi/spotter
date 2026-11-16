@@ -27,7 +27,7 @@ No build step and nothing to install.
   python -m http.server 8000
   ```
 
-To see all three features without weeks of logging: **Spotter tab → Turn demo mode on.** Demo data is made up, clearly labelled, and stored separately from real data.
+To see all three features without weeks of logging: open the app with `?demo=reset` on the end of the address, or **Spotter tab → Turn demo mode on.** Demo data is made up, clearly labelled, and stored separately from real data. `docs/DEMO_SCRIPT.md` has a recording script.
 
 ## Test it
 
@@ -74,6 +74,7 @@ docs/
   MANUAL_TESTS.md        step-by-step checklist for the iPhone
   BUILD_LOG.md           what was built when, and what was AI-generated
   DESIGN.md              why the interface was restyled, with sources
+  DEMO_SCRIPT.md         how to run the demo, the seed data, and a 2-minute recording script
 ```
 
 ## Your data

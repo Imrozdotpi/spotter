@@ -96,7 +96,7 @@ Nothing in this repository deploys anything. There is no `.github` folder, no wo
 6. Add to Home Screen. Check that your data is there too; if not, restore the backup again inside the Home Screen app.
 7. Work through `docs/MANUAL_TESTS.md`.
 
-**Every time you change a file and redeploy:** raise `VERSION` in `sw.js` (for example `spotter-v1` → `spotter-v2`). Phones keep the saved scripts until that name changes.
+**Every time you change a file and redeploy:** just push. The service worker fetches every file from the network first and only uses its saved copy when you are offline, so an update appears on the next normal reload (a phone that still runs the older worker may need one extra reload). Raising `VERSION` in `sw.js` is optional now; it only clears old saved copies.
 
 Before the repository goes public, check that no personal backup file is in it. `.gitignore` already excludes `my-backup.json` and `*-backup-*.json`.
 

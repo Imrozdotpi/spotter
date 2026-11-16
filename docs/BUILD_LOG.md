@@ -311,3 +311,17 @@ Imroz wanted to record by only ticking boxes on the Push 1 tab, with no spoken n
 **Note:** the Pull-Ups e1RM oddity in LIMITATIONS.md is still true but no longer appears in the default demo day.
 
 **AI-generated:** all of the above.
+
+## Service worker: network-first (stale scripts fixed)
+
+Imroz's browser still showed empty Push 1 sets after the prefill change was committed.
+
+**Cause (reproduced).** `sw.js` served scripts cache-first. In a test with a fixed version number, a changed script was never picked up (the page kept running "OLD" on every reload). Bumping `VERSION` should have fixed it, but the new worker's install could also re-save old copies from the browser's HTTP cache.
+
+**Change.** `sw.js` (now `spotter-v5`): every same-origin request goes to the network first with revalidation; installation bypasses the HTTP cache; the saved copy is only the offline fallback. This replaces the brief's "cache-first for static assets" on purpose (see DECISIONS E15).
+
+**Checks** (headless Chrome, throwaway copy of the app on its own port): load 1 installs the worker, load 2 is controlled by it, the server file is changed, load 3 shows the new script after one normal reload, and with the server stopped the app still opens from the saved copy (7 exercise cards rendered). Under the old worker the same test stayed on the old script.
+
+**For Imroz.** A browser that already holds the older worker needs one extra reload, or use an Incognito window, which has no saved copy.
+
+**AI-generated:** the diagnosis, the change and this entry. The earlier advice to "reload twice" after a version bump was a workaround for this bug.

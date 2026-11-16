@@ -3,14 +3,15 @@
  *
  * - It only ever touches requests to this site's own address (same origin).
  *   Spotter makes no other requests, and this file would not serve them anyway.
- * - The page itself (HTML) is fetched from the network first, so updates show
- *   up when you are online, and falls back to the saved copy when you are not.
- * - Scripts, icons and the manifest are served from the saved copy first.
- *
- * WHEN YOU CHANGE ANY FILE LISTED BELOW, RAISE THE VERSION NUMBER.
- * That makes phones drop the old saved copies and fetch the new ones.
+ * - EVERYTHING is fetched from the network first (and re-checked with the server, so the
+ *   browser's own cache cannot hand back an old copy). That means a changed script or page
+ *   shows up on the next load whenever you are online.
+ * - The saved copy is only the fallback when the network fails, which is what makes the app
+ *   open in aeroplane mode.
+ * - Raising VERSION below is no longer needed for updates to appear. It still clears old
+ *   saved copies, so raise it when files are removed or renamed.
  */
-const VERSION = "spotter-v4";
+const VERSION = "spotter-v5";
 
 const ASSETS = [
   "./",
@@ -28,7 +29,10 @@ const ASSETS = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(VERSION).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(VERSION)
+      // cache: "reload" skips the browser's HTTP cache, so the saved copies are the server's current files
+      .then(cache => Promise.all(ASSETS.map(url => cache.add(new Request(url, { cache: "reload" })))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -47,31 +51,17 @@ self.addEventListener("fetch", event => {
   if (url.origin !== self.location.origin) return; // never handle anything off this site
 
   const isPage = req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
+  const network = isPage ? fetch(req) : fetch(req, { cache: "no-cache" }); // no-cache = always ask the server if the file changed
 
-  if (isPage) {
-    // Network first, saved copy as the offline fallback.
-    event.respondWith(
-      fetch(req)
-        .then(res => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(VERSION).then(cache => cache.put("./index.html", copy));
-          }
-          return res;
-        })
-        .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("./index.html")))
-    );
-    return;
-  }
-
-  // Static files: saved copy first, network only if it is not saved yet.
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(res => {
-      if (res && res.ok) {
-        const copy = res.clone();
-        caches.open(VERSION).then(cache => cache.put(req, copy));
-      }
-      return res;
-    }))
+    network
+      .then(res => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(VERSION).then(cache => cache.put(isPage ? "./index.html" : req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || (isPage ? caches.match("./index.html") : undefined)))
   );
 });

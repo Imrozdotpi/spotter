@@ -70,6 +70,7 @@ The data is built around today's date, so the exam countdown and the week charts
 
 ## 3. Before you press record
 
+- [ ] **Safest: open a new Incognito window** (Ctrl+Shift+N) so no old saved copy of the app can interfere, then open `…/?demo=present`. In a normal window, press Ctrl+Shift+R first and reload twice.
 - [ ] Open `…/?demo=present`. You should see **no** amber bar and, on Workout, the Autopilot card at the top.
 - [ ] Phone: Do Not Disturb on, silent mode on (the rest timer beeps after 90 seconds), brightness up, battery above 50%, portrait lock on.
 - [ ] Phone recording: Control Centre → Screen Recording. Long-press it and turn the microphone on if you are speaking live. Laptop: Win+Alt+R (Xbox Game Bar) records the browser window; OBS also works.

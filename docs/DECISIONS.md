@@ -150,7 +150,7 @@ Sources are marked honestly:
 | E12 | Failed save | Red warning in the header | Added | The tracker's `SafeStore` fails silently. |
 | E13 | Demo data | Rebuilt each time demo mode is turned on, and each new day | Build | Always lines up with "today". |
 | E14 | Demo history is well fed | No low-intake note in demo by default | Build | MANUAL_TESTS explains how to trigger the note. |
-| E15 | Service worker | Cache-first for scripts; raise `VERSION` in `sw.js` on every deploy | Brief / Build | Otherwise phones keep old scripts. |
+| E15 | Service worker | **Network-first for everything** (revalidated with the server), saved copy only when offline. Changed from cache-first on 17 Nov | Build (the brief said cache-first for static files) | Cache-first kept serving old scripts after they changed, so a recording showed an out-of-date app. Tested: a changed script is picked up on the next load, and the app still opens with the server stopped. The cost is one small request per file when online. |
 | E16 | Header | A small "SPOTTER · Your logbook is the wearable." line above the date | Build | The brief asks for the name in the header. Costs about 20 px of height. |
 | E17 | Spotter tab icon | 🤝 emoji | Build | Matches the other emoji tabs. |
 

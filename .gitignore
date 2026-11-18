@@ -3,3 +3,9 @@ my-backup.json
 *-backup-*.json
 node_modules/
 .claude/
+
+# Rendered video / audio (large, regenerate with tools/trailer)
+*.mp4
+*.wav
+*.webm
+*.pptx

@@ -325,3 +325,13 @@ Imroz's browser still showed empty Push 1 sets after the prefill change was comm
 **For Imroz.** A browser that already holds the older worker needs one extra reload, or use an Incognito window, which has no saved copy.
 
 **AI-generated:** the diagnosis, the change and this entry. The earlier advice to "reload twice" after a version bump was a workaround for this bug.
+
+## Trailer video (tools/trailer)
+
+Imroz asked for a trailer for the AI TechTrailblazer theme from the raw demo recording, with more animation and better music.
+
+**What it is.** An ~84 s, 1080p MP4 (`Spotter Trailer.mp4`, not committed) built from the real recording plus drawn scenes: hook, title, problem, workflow, three acts (Push 1 progress, training load, groceries/macros), an honest "what it can't do" beat, proof numbers (118 tests, 600/600 solver cases, 1.15 vs 4.77 error), and an AI-vs-human split. The soundtrack is original and synthesized in code (no downloaded music), also saved as a WAV.
+
+**Checks.** Duration, audio present and not clipped (peak 0.9), picture/audio impact aligned within about 20 ms on an earlier take, mean frame gap about 35 ms. One ~0.5 s frame hold per render remains (cause not found; varies by run). I could not listen to the music; only its level was measured.
+
+**AI-generated:** the scenes, soundtrack code, render driver and this entry. **Human:** the claims shown on screen are Imroz's to confirm.

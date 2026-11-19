@@ -53,6 +53,15 @@
     "Banana + PB": { price: 25, max: 2, available: true }
   };
 
+  // Extra SAMPLE canteen items for the demo menu (made-up prices and typical values, NOT real).
+  var EXTRA_CANTEEN = [
+    { name: "Curd (200g)", cal: 120, pro: 8, carb: 10, fat: 6, price: 20, max: 2 },
+    { name: "Milk (250ml)", cal: 150, pro: 8, carb: 12, fat: 8, price: 15, max: 2 },
+    { name: "Sprouts Chaat (150g)", cal: 140, pro: 12, carb: 22, fat: 1, price: 25, max: 2 },
+    { name: "Egg Bhurji (3 eggs)", cal: 270, pro: 19, carb: 3, fat: 20, price: 40, max: 1 },
+    { name: "Rajma Chawal", cal: 420, pro: 14, carb: 70, fat: 7, price: 45, max: 1 }
+  ];
+
   function rng(seed) { // mulberry32
     var a = seed >>> 0;
     return function () {
@@ -221,6 +230,7 @@
     var todaySplit = "push1"; // the demo day is always Push 1 (Flat Bench first), whatever the weekday
     var today = emptyDay(todaySplit);
     today.sleepHours = 6;
+    today.bodyweight = "73.2"; // preset so the weight box is not empty on the demo day
     today.waterMl = 1500;
     today.supplements = ["Creatine 5g"];
     // Breakfast, lunch, snack, dinner. 120 g protein and 1410 kcal in total -> the poster's "40 g protein short" against a 160 g goal.
@@ -233,10 +243,14 @@
     logs[endDate] = today;
 
     // ----- everything else -----
-    var canteen = C.cleanCanteen(staples.map(function (s) {
+    var canteenRows = staples.map(function (s) {
       var p = SAMPLE_PRICES[s.name] || { price: null, max: 3, available: true };
       return { name: s.name, cal: s.cal, pro: s.pro, carb: s.carb, fat: s.fat, price: p.price, maxServings: p.max, available: p.available };
-    }));
+    });
+    EXTRA_CANTEEN.forEach(function (e) { // a fuller menu to show; none beats the cheapest combo in the poster example
+      if (!canteenRows.some(function (r) { return r.name === e.name; })) canteenRows.push({ name: e.name, cal: e.cal, pro: e.pro, carb: e.carb, fat: e.fat, price: e.price, maxServings: e.max, available: true });
+    });
+    var canteen = C.cleanCanteen(canteenRows);
 
     return {
       demo: true,

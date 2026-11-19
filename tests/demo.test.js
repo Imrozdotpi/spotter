@@ -39,13 +39,21 @@ test("demo data covers exactly 5 weeks (35 days, about a month) ending on the gi
   assert.equal(C.validateBackup({ workoutLogs: g.logs }, STAPLES).ok, true, "demo logs have a valid shape");
 });
 
-test("demo canteen uses the SAMPLE prices from the fixture and nothing else", () => {
+test("demo canteen: the fixture's SAMPLE prices first, then extra priced SAMPLE items, and the poster combo is unchanged", () => {
   const g = Demo.generate("2026-11-12", SPLITS, STAPLES);
   assert.equal(sample.sample, true);
   assert.deepEqual(
-    g.canteen.map(i => [i.name, i.price, i.maxServings, i.available]),
+    g.canteen.slice(0, sample.items.length).map(i => [i.name, i.price, i.maxServings, i.available]),
     sample.items.map(i => [i.name, i.price, i.maxServings, i.available])
   );
+  const extras = g.canteen.slice(sample.items.length);
+  assert.ok(extras.length >= 4 && extras.every(i => i.price > 0 && i.available && i.pro > 0));
+  // the larger menu must not change the answer shown in the slides: 40 g short, Rs 60, 1090 kcal left -> Rs 40, 50 g, 452 kcal
+  const res = C.solveCombo(g.canteen, { gap: 40, budget: 60, caloriesRemaining: 1090 });
+  assert.equal(res.status, "optimal");
+  assert.equal(res.plan.totals.cost, 40);
+  assert.equal(res.plan.totals.pro, 50);
+  assert.equal(res.plan.totals.cal, 452);
 });
 
 for (const date of WEEK) {
